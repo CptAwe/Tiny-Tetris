@@ -45,32 +45,29 @@ void loop() {
 	// }
 
 	Serial.println(title::welcomeScreen[0][0], BIN);
-	byte row = 2;
+	byte row = 13;
 	byte col = 2;
-	byte arr[row][col] = {
+	byte arr[13][2] = {
 		{0B01111110, 0B01111110},
 		{0B01100110, 0B01100110},
+		{0B01100110, 0B01100110},
+		{0B01100110, 0B01100110},
+		{0B01100000, 0B01100110},
+		{0B01100000, 0B01100110},
+		{0B01100000, 0B01100110},
+		{0B01100110, 0B01100110},
+		{0B01100110, 0B01100110},
+		{0B01100110, 0B01100110},
+		{0B01100110, 0B01100110},
+		{0B01100110, 0B01100110},
+		{0B01100110, 0B01111110},
 	};
-
-	// declare an array with arrays of pointers
-	byte ** temp = (byte**)malloc(sizeof(byte *) * row);
-	for(int i=0; i<row; i++){
-        *(temp+i) = (byte*)malloc(sizeof(byte)*col);
-	}
-
-	// fill the array with arrays of pointers
-	for (int i=0; i<row; i++){
-		for (int j=0; j<col; j++) {
-			temp[i][j] = arr[i][j];
-			// Serial.println(temp[i][j], BIN);
-		}
-	}
 
 	// display.entire_display_on();
 	// display.show_gddram_contents();
 
 	display.clear();
-	display.draw(0, 1, 0, 1, temp);
+	display.draw(0, col, 0, row, arr);
 	// display.inverse();
 
 	while (true){}

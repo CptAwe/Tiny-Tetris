@@ -99,29 +99,30 @@ class screen{
 			}
 		}
 
-		void draw(byte column_start, byte column_end, byte page_start, byte page_end, byte ** data) {
+		void draw(byte page_start, byte page_end, byte column_start, byte column_end, byte data[13][2]) {
 			// draws on the screen by vertical addressing
+			// The data array has to be mirrored
 
 			OLEDCommand(OLED_SET_ADDRESSING);
-			OLEDCommand(OLED_HORIZONTAL_ADDRESSING);
+			OLEDCommand(OLED_VERTICAL_ADDRESSING);
 
 			OLEDCommand(OLED_SET_COLUMN);
 			OLEDCommand(column_start);
-			OLEDCommand(column_end);
+			OLEDCommand(column_end-1);
 
 			OLEDCommand(OLED_SET_PAGE);
 			OLEDCommand(page_start);
-			OLEDCommand(page_end);
-
-			for (int col=column_start; col<=column_end; col++){
-				for (int page=page_start; page<=page_end; page++){
-					OLEDData(data[page][col]);
-					delay(100);
+			OLEDCommand(page_end-1);
+			
+			for (byte col=column_start; col<=column_end-1; col++){
+				byte mirror_page = page_end-1;
+				for (byte page=page_start; page<=page_end-1; page++){
+					OLEDData(data[col][mirror_page]);
+					// delay(100);
+					mirror_page--;
 				}
 			}
-		}
-
-		
+		}		
 
 };
 
