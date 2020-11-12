@@ -48,8 +48,11 @@ void loop() {
 		0, title_screen.x,
 		0, title_screen.y,
 		title_screen.graph(),
-		true
+		true,// read from progmem
+		false// invert colours
 	);
+
+	// display.inverse();
 
 
 	while (true){}

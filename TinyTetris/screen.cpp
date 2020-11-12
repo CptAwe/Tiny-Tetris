@@ -103,7 +103,9 @@ class screen{
 			}
 		}
 
-		void draw(byte column_start, byte column_end, byte page_start, byte page_end, byte data[], bool invert = false) {
+		void draw(
+			byte column_start, byte column_end, byte page_start, byte page_end,
+			byte data[], bool read_from_progmem, bool invert = false) {
 			// draws on the screen by vertical addressing
 			// The data array has to be mirrored
 
@@ -119,13 +121,23 @@ class screen{
 			OLEDCommand(page_end-1);
 			
 			for (byte col=column_start; col<=column_end-1; col++){
-				byte mirror_page = page_end-1;
+				byte mirror_page = page_end-1;// The image has to be mirrored horizontally
 				for (byte page=page_start; page<=page_end-1; page++){
-					byte data_2b_sent = data[mirror_page + col*(page_end-page_start)];
+					
+					byte data_2b_sent = 0;
+					int position = mirror_page + col*(page_end-page_start);// It can't be a byte. The number is too big
+
+					if (read_from_progmem) {
+						data_2b_sent = pgm_read_byte(&data[position]);
+					}else{
+						data_2b_sent = data[position];
+					}
+
 					if (invert){
 						data_2b_sent = ~data_2b_sent;
 					}
 					// OLEDData(data[col][mirror_page]);
+					
 					OLEDData(data_2b_sent);
 					// delay(100);
 					mirror_page--;
