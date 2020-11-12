@@ -78,6 +78,10 @@ class screen{
 			OLEDCommand(OLED_INVERSE_DISPLAY);
 		}
 
+		byte inverse_data(byte data) {
+			return ~data;
+		}
+
 		void clear() {
 			// clears the display.
 			// Isn't there a better way?
@@ -99,7 +103,7 @@ class screen{
 			}
 		}
 
-		void draw(byte page_start, byte page_end, byte column_start, byte column_end, byte data[13][2]) {
+		void draw(byte column_start, byte column_end, byte page_start, byte page_end, byte data[], bool invert = false) {
 			// draws on the screen by vertical addressing
 			// The data array has to be mirrored
 
@@ -117,7 +121,12 @@ class screen{
 			for (byte col=column_start; col<=column_end-1; col++){
 				byte mirror_page = page_end-1;
 				for (byte page=page_start; page<=page_end-1; page++){
-					OLEDData(data[col][mirror_page]);
+					byte data_2b_sent = data[mirror_page + col*(page_end-page_start)];
+					if (invert){
+						data_2b_sent = ~data_2b_sent;
+					}
+					// OLEDData(data[col][mirror_page]);
+					OLEDData(data_2b_sent);
 					// delay(100);
 					mirror_page--;
 				}

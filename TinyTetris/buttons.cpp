@@ -13,26 +13,26 @@ class buttons {
     // There are 4 buttons
     private:
         byte num_of_buttons = 4;
-        int* pins_;
+        byte* pins_;
 
         /**
          * Calculates the power of 2
          */
-        int pow2(int exponent) {
+        int pow2(byte exponent) {
             if (exponent == 0) {
                 return 1;
             }
-            int sum = 2;
-            for (int i=1; i<exponent; i++) {
+            byte sum = 2;
+            for (byte i=1; i<exponent; i++) {
                 sum = sum*2;
             }
             return sum;
         }
 
     public:
-        buttons(int pins[]) {
+        buttons(byte pins[]) {
             
-            pins_ = new int[num_of_buttons];
+            pins_ = new byte[num_of_buttons];
 
             memcpy(pins_, pins, num_of_buttons*sizeof(int));
 
@@ -41,7 +41,7 @@ class buttons {
             }
         }
 
-        int states() {
+        byte states() {
             int states = 0;
             for (int i=0; i<=num_of_buttons-1; i++){
                 

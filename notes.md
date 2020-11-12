@@ -4,6 +4,12 @@ This is a collection of notes and overall changelog.
 
 ---
 ## **v1.1.0**:
+### **status**: first correctly shown graphics
+* The way I handle graphics in title.cpp is not the best. The compiler does not like it when I try to pass a static array of a library to a function of another library. Good news is that this way uses the same amount of resources.
+* I am so sorry to [tobozo](https://github.com/tobozo) for deleting the artwork! I hoped I could use it, but I have changed the code too much. I have to mirror each piece both horizontally and vertically. It is much easier to make it from scratch, unfortunatelly...
+
+
+## **v1.1.0**:
 ### **status**: proof of concept
 * Managed to move the OLED management to a separate file. The Pro Mini doesn't have enough memory for the Adafruit_SSD1306 library. It needs a bare bones version.
 * Currently trying to pass any 2d array to a function to draw on the screen on the fly.

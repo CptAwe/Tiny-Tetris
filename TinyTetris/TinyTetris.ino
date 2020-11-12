@@ -1,11 +1,12 @@
 #include "buttons.cpp"
-#include "title.cpp"
+#include "graphics.cpp"
 #include "blocks.cpp"
 #include "screen.cpp"
 // #include "TetrisTheme.cpp" // Too much for an Atmega168 5v@16MHz
 
 // [GeoPap] The new display manager
 screen display;
+graphics::titleScreen title_screen;
 
 // pins for buttons
 #define KEY_LEFT_pin    11
@@ -13,7 +14,7 @@ screen display;
 #define KEY_DOWN_pin    10
 #define KEY_ROTATE_pin  A0
 
-const int button_pins[] = {
+const byte button_pins[4] = {
 	KEY_LEFT_pin, KEY_RIGHT_pin, KEY_DOWN_pin, KEY_ROTATE_pin
 };
 buttons Dpad(button_pins);
@@ -34,41 +35,22 @@ void setup() {
 	// pinMode(PIEZO_PIN, OUTPUT);
 	// pinMode(LED_PIN, OUTPUT);
 	display.init();
-	randomSeed(analogRead(A1)); /// To do: create a decent random number generator.
+	display.clear();
+
+	randomSeed(analogRead(A1));
 
 }
 
 
 void loop() {
-	// for (int i=0; i<=10; i++){
-	// 	Serial.println(blocks::random_piece()[0], BIN);
-	// }
 
-	Serial.println(title::welcomeScreen[0][0], BIN);
-	byte row = 13;
-	byte col = 2;
-	byte arr[13][2] = {
-		{0B01111110, 0B01111110},
-		{0B01100110, 0B01100110},
-		{0B01100110, 0B01100110},
-		{0B01100110, 0B01100110},
-		{0B01100000, 0B01100110},
-		{0B01100000, 0B01100110},
-		{0B01100000, 0B01100110},
-		{0B01100110, 0B01100110},
-		{0B01100110, 0B01100110},
-		{0B01100110, 0B01100110},
-		{0B01100110, 0B01100110},
-		{0B01100110, 0B01100110},
-		{0B01100110, 0B01111110},
-	};
+	display.draw(
+		0, title_screen.x,
+		0, title_screen.y,
+		title_screen.graph(),
+		true
+	);
 
-	// display.entire_display_on();
-	// display.show_gddram_contents();
-
-	display.clear();
-	display.draw(0, col, 0, row, arr);
-	// display.inverse();
 
 	while (true){}
 	
