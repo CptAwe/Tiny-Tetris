@@ -1,5 +1,5 @@
 /* The OLED screen is set into Page Addressing Mode. This means that there are
- * 128 columns and 7*(8 pages).
+ * 128 columns and 8*(8 pages).
  * 
  * very informative read:
  * https://iotexpert.com/debugging-ssd1306-display-problems/
@@ -12,9 +12,10 @@
 #include <Wire.h>
 
 class screen{
+
     private:
 		static const byte SCREEN_WIDTH = 128;
-		static const byte SCREEN_HEIGHT = 64;
+		static const byte SCREEN_HEIGHT = 64; 
 		// OLED commands
 		static const byte OLED_ADDRESS = 0x3C;// you may need to change this, this is the OLED I2C address.  
 		static const byte OLED_COMMAND = 0x80;// declare that a command is to be sent
@@ -49,7 +50,23 @@ class screen{
 			Wire.endTransmission();
 		}
 
+		byte pow2(byte exponent) {
+			// 2^x
+            if (exponent <= 0) {
+                return 1;
+            }
+            byte sum = 2;
+            for (byte i=1; i<exponent; i++) {
+                sum = sum*2;
+            }
+            return sum;
+        }
+
 	public:
+
+		// The part of the screen that the main game is played. 118*58 pixels
+		byte play_screen[1] = {0B00000000};
+
 		void init(){
 			// Initialise the display
 			OLEDCommand(OLED_DISPLAY_OFF);
@@ -103,7 +120,7 @@ class screen{
 			}
 		}
 
-		void draw(
+		void _draw(
 			byte column_start, byte column_end, byte page_start, byte page_end,
 			byte data[], bool read_from_progmem, bool invert = false) {
 			// draws on the screen by vertical addressing
@@ -114,12 +131,16 @@ class screen{
 
 			OLEDCommand(OLED_SET_COLUMN);
 			OLEDCommand(column_start);
-			OLEDCommand(column_end-1);
+			OLEDCommand(column_start + column_end-1);
 
 			OLEDCommand(OLED_SET_PAGE);
 			OLEDCommand(page_start);
 			OLEDCommand(page_end-1);
 			
+			// set them to zero before referring to the array
+			column_start = 0;
+			page_start = 0;
+
 			for (byte col=column_start; col<=column_end-1; col++){
 				byte mirror_page = page_end-1;// The image has to be mirrored horizontally
 				for (byte page=page_start; page<=page_end-1; page++){
@@ -143,6 +164,62 @@ class screen{
 					mirror_page--;
 				}
 			}
+		}
+
+		void _draw(byte column_start, byte column_end, byte page_start, byte page_end, byte data) {
+			// draws on the screen by vertical addressing
+			// The data array has to be mirrored
+			// This is a simpler version of the above function. It sends the same data to 
+			// a part of the screen.
+
+			OLEDCommand(OLED_SET_ADDRESSING);
+			OLEDCommand(OLED_VERTICAL_ADDRESSING);
+
+			OLEDCommand(OLED_SET_COLUMN);
+			OLEDCommand(column_start);
+			OLEDCommand(column_start + column_end-1);
+
+			OLEDCommand(OLED_SET_PAGE);
+			OLEDCommand(page_start);
+			OLEDCommand(page_end-1);
+			
+			int data_end = column_end*page_end;
+			for (int i=0; i<=data_end; i++){
+				OLEDData(data);
+				// delay(100);
+			}
+		}
+
+		int draw(byte x /*column*/, byte y /*page*/, bool color) {
+			// Draws a specific pixel of the screen.
+			// It converts from columns and pages to coordinates.
+
+			// TODO: This sets all other pixels of the page to 0.
+			// To avoid this the rest of the pixels have to be known.
+			// Can I read their values from the screen or I have to keep track of them?
+
+			byte page = y/8;
+			byte bit = y - page*8;
+			byte data;
+			if (bit != 0) {
+				data = pow2(bit - 1);
+			} else {
+				data = 1;
+			}
+
+			_draw(
+				x, x,
+				page, page,
+				data
+			);
+			return data;
+		}
+
+		void draw_line(byte column_start, byte column_end, byte page_start, byte page_end, byte data) {
+			// This draws the line: column = a * page + b
+			// a = 
+
+			// draw(byte column_start, byte column_end, byte page_start, byte page_end, byte data)
 		}		
 
 };
