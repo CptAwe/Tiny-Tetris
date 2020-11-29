@@ -46,44 +46,12 @@ void setup() {
 
 
 void loop() {
-	// display.draw(
-	// 	0, I_block.x,
-	// 	0, I_block.y,
-	// 	I_block.graph(),
-	// 	true,// read from progmem
-	// 	false// invert colours
-	// );
-	// display.draw(
-	// 	0, J_block.x,
-	// 	0, J_block.y,
-	// 	J_block.graph(),
-	// 	true,// read from progmem
-	// 	false// invert colours
-	// );
-	// for (byte i=0; i<8-L_block.y; i = i + 1){
-	// 	display.draw(
-	// 		0, L_block.x,
-	// 		i, L_block.y,
-	// 		L_block.graph(),
-	// 		true,// read from progmem
-	// 		false// invert colours
-	// 	);
-	// 	delay(250);
-	// 	display.draw(
-	// 		0, L_block.x,
-	// 		i, L_block.y,
-	// 		0
-	// 	);
-	// 	delay(1);
-	// }
 
-
-	byte answer = display.draw(
+	display.draw(
 		0,
 		0,
 		1
 	);
-	Serial.println(answer);
 	
 
 	// display.inverse();

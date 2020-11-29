@@ -10,12 +10,17 @@
 
 #include <Arduino.h>
 #include <Wire.h>
+#include <EEPROM.h>
 
 class screen{
 
     private:
 		static const byte SCREEN_WIDTH = 128;
-		static const byte SCREEN_HEIGHT = 64; 
+		static const byte SCREEN_HEIGHT = 64;
+
+		static const byte PLAY_WIDTH = 118;
+		static const byte PLAY_HEIGHT = 58;
+
 		// OLED commands
 		static const byte OLED_ADDRESS = 0x3C;// you may need to change this, this is the OLED I2C address.  
 		static const byte OLED_COMMAND = 0x80;// declare that a command is to be sent
@@ -50,6 +55,11 @@ class screen{
 			Wire.endTransmission();
 		}
 
+		byte OLEDRead(){
+			// Not supported for SSD1306.
+			return 0;
+		}
+
 		byte pow2(byte exponent) {
 			// 2^x
             if (exponent <= 0) {
@@ -63,9 +73,6 @@ class screen{
         }
 
 	public:
-
-		// The part of the screen that the main game is played. 118*58 pixels
-		byte play_screen[1] = {0B00000000};
 
 		void init(){
 			// Initialise the display
@@ -120,7 +127,7 @@ class screen{
 			}
 		}
 
-		void _draw(
+		void draw(
 			byte column_start, byte column_end, byte page_start, byte page_end,
 			byte data[], bool read_from_progmem, bool invert = false) {
 			// draws on the screen by vertical addressing
@@ -166,7 +173,7 @@ class screen{
 			}
 		}
 
-		void _draw(byte column_start, byte column_end, byte page_start, byte page_end, byte data) {
+		void draw(byte column_start, byte column_end, byte page_start, byte page_end, byte data) {
 			// draws on the screen by vertical addressing
 			// The data array has to be mirrored
 			// This is a simpler version of the above function. It sends the same data to 
@@ -186,18 +193,17 @@ class screen{
 			int data_end = column_end*page_end;
 			for (int i=0; i<=data_end; i++){
 				OLEDData(data);
-				// delay(100);
 			}
 		}
 
-		int draw(byte x /*column*/, byte y /*page*/, bool color) {
+		void draw(byte x /*column*/, byte y /*page*/, bool color) {
 			// Draws a specific pixel of the screen.
 			// It converts from columns and pages to coordinates.
 
 			// TODO: This sets all other pixels of the page to 0.
 			// To avoid this the rest of the pixels have to be known.
 			// Can I read their values from the screen or I have to keep track of them?
-
+			
 			byte page = y/8;
 			byte bit = y - page*8;
 			byte data;
@@ -207,20 +213,13 @@ class screen{
 				data = 1;
 			}
 
-			_draw(
+			draw(
 				x, x,
 				page, page,
-				data
+				data*color
 			);
-			return data;
 		}
-
-		void draw_line(byte column_start, byte column_end, byte page_start, byte page_end, byte data) {
-			// This draws the line: column = a * page + b
-			// a = 
-
-			// draw(byte column_start, byte column_end, byte page_start, byte page_end, byte data)
-		}		
+	
 
 };
 

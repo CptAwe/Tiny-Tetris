@@ -3,6 +3,10 @@
 This is a collection of notes and overall changelog.
 
 ---
+## **v1.1.1**:
+### **status**: Trying to easily show graphics
+* There is no way to read the GDDRAM from the SSD1306. Only SH1106 supports returning the pixels on the screen. I have screens with only SSD1306. I have to use another way. [Further reading](http://www.technoblogy.com/show?2CFT).
+
 ## **v1.1.0**:
 ### **status**: first correctly shown graphics
 * The way I handle graphics in title.cpp is not the best. The compiler does not like it when I try to pass a static array of a library to a function of another library. Good news is that this way uses the same amount of resources.
