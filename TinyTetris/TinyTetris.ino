@@ -42,16 +42,31 @@ void setup() {
 
 	randomSeed(analogRead(A1));
 
+	display.draw(
+		0, title_screen.x,
+		0, title_screen.y,
+		title_screen.graph(),
+		true
+	);
+
+	delay(2000);
+
+	display.clear();
+
 }
 
 
 void loop() {
 
-	display.draw(
-		0,
-		0,
-		1
-	);
+	
+
+	// display.draw(
+	// 	0,
+	// 	0,
+	// 	1
+	// );
+
+	display.drawPerimiter();
 	
 
 	// display.inverse();

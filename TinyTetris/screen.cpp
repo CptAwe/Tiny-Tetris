@@ -18,8 +18,13 @@ class screen{
 		static const byte SCREEN_WIDTH = 128;
 		static const byte SCREEN_HEIGHT = 64;
 
-		static const byte PLAY_WIDTH = 118;
-		static const byte PLAY_HEIGHT = 58;
+		static const byte PLAY_WIDTH = 118;// actual pixels
+		static const byte PLAY_HEIGHT = 58;// actual pixels
+
+		static const byte PLAY_COLUMNS = 10;// squares
+		static const byte PLAY_LINES = 20;// squares
+
+		bool play_screen[PLAY_LINES][PLAY_COLUMNS];
 
 		// OLED commands
 		static const byte OLED_ADDRESS = 0x3C;// you may need to change this, this is the OLED I2C address.  
@@ -87,6 +92,14 @@ class screen{
 			OLEDCommand(0x14);// what command is that? (enable charge pumb regulator?)
 			delay(20);
 			OLEDCommand(OLED_NORMAL_DISPLAY);
+
+			// fill play_screen array with zeroes
+			// TODO: This can be squished even more. Each square doesn't need to be one byte.
+			for (int i=0; i<PLAY_LINES; i++){
+				for (int j=0; j<PLAY_COLUMNS; j++){
+					play_screen[i][j] = true;
+				}
+			}
 		}
 
 		void entire_display_on() {
@@ -138,14 +151,16 @@ class screen{
 
 			OLEDCommand(OLED_SET_COLUMN);
 			OLEDCommand(column_start);
-			OLEDCommand(column_start + column_end-1);
+			OLEDCommand(column_end-1);
 
 			OLEDCommand(OLED_SET_PAGE);
 			OLEDCommand(page_start);
-			OLEDCommand(page_end-1);
+			OLEDCommand(page_end - 1);
 			
 			// set them to zero before referring to the array
+			column_end = column_end - column_start;
 			column_start = 0;
+			page_end = page_end - page_start;
 			page_start = 0;
 
 			for (byte col=column_start; col<=column_end-1; col++){
@@ -153,7 +168,7 @@ class screen{
 				for (byte page=page_start; page<=page_end-1; page++){
 					
 					byte data_2b_sent = 0;
-					int position = mirror_page + col*(page_end-page_start);// It can't be a byte. The number is too big
+					int position = mirror_page + col*page_end;// It can't be a byte. The number is too big
 
 					if (read_from_progmem) {
 						data_2b_sent = pgm_read_byte(&data[position]);
@@ -184,14 +199,14 @@ class screen{
 
 			OLEDCommand(OLED_SET_COLUMN);
 			OLEDCommand(column_start);
-			OLEDCommand(column_start + column_end-1);
+			OLEDCommand(column_end - 1);
 
 			OLEDCommand(OLED_SET_PAGE);
 			OLEDCommand(page_start);
-			OLEDCommand(page_end-1);
+			OLEDCommand(page_end - 1);
 			
-			int data_end = column_end*page_end;
-			for (int i=0; i<=data_end; i++){
+			int data_end = (column_end - column_start)*(page_end - page_start);
+			for (int i=0; i<data_end; i++){
 				OLEDData(data);
 			}
 		}
@@ -199,10 +214,9 @@ class screen{
 		void draw(byte x /*column*/, byte y /*page*/, bool color) {
 			// Draws a specific pixel of the screen.
 			// It converts from columns and pages to coordinates.
+			// This sets all other pixels of the page to 0.
 
-			// TODO: This sets all other pixels of the page to 0.
-			// To avoid this the rest of the pixels have to be known.
-			// Can I read their values from the screen or I have to keep track of them?
+			// TODO: Needs a little more testing
 			
 			byte page = y/8;
 			byte bit = y - page*8;
@@ -219,7 +233,52 @@ class screen{
 				data*color
 			);
 		}
-	
+
+		void drawPerimiter() {
+			// The perimiter is a square (column, page, byte):
+			// 
+			//                             0B11111111
+			//         A(5, 7, 0B01111111)    ----    B(5, 0, 0B11111110)
+			//                 |                           |
+			//  0B01000000     |                           |  0B00000010
+			//                 |                           |
+			//        C(126, 7, 0B01111111)   ----    D(126 , 0, 0B11111110)
+			//                             0B11111111
+
+			draw(5, 6, 1, 7, 255);// top line
+			draw(5, 127, 0, 1, 0B00000010);// right line
+			draw(126, 127, 1, 7, 255);// bottom line
+			draw(5, 127, 7, 8, 0B01000000);// left line
+
+			draw(5, 6, 0, 1, 0B11111110);// top right point
+			draw(126, 127, 0, 1, 0B11111110);// bottom right point
+			draw(126, 127, 7, 8, 0B01111111);// bottom left point
+			draw(5, 6, 7, 8, 0B01111111);// top left point
+		}
+
+		void drawPlayArea(byte x /*line*/, byte y /*column*/, bool color){
+			// Fills appropriate box on the play area coordinates
+			// The x,y values refer to the number of columns and lines a tetris game has.
+
+			// The 0,0 coordinates are the top right corner, to be consistent with the vertical addressing
+			play_screen[x][y] = true;
+			updatePlayArea();
+		}
+
+		void updatePlayArea() {
+			// Updates the play area on the screen
+			// Check each column first and then each line.
+			// Some columns affect more than one page.
+			// Thus the adjacent columns have to also be checked.
+
+			for (byte col = 0; col < PLAY_COLUMNS; col++){
+				for (byte line = 19; line >= 0; line--){// Check it in reverse
+					if (play_screen[line][col]){
+						// check adjacent columns (beware of the end conditions)
+					}
+				}
+			}
+		}
 
 };
 
