@@ -1,10 +1,10 @@
-'''
+"""
 This is a simple script to convert the stale binary
 to an easy to copy and paste C++ array
-'''
+"""
 
-txt_directory = "C:\\Users\\CptAwe\\Documents\\GitHub\\Tiny-Tetris\\Art\\TinyTetrisTitleScreen_binary.txt"
-txt_output_directory = "C:\\Users\\CptAwe\\Documents\\GitHub\\Tiny-Tetris\\Art\\TinyTetrisTitleScreen_binary_Carray.txt"
+txt_directory = "TinyTetrisTitleScreen_binary.txt"
+txt_output_directory = "TinyTetrisTitleScreen_binary_Carray.txt"
 
 """
 Loads the text file and returns the binary as text

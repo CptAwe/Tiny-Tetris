@@ -9,10 +9,12 @@
 
 #include <Arduino.h>
 
+#define NUM_OF_BUTTONS 4
+
 class buttons {
     // There are 4 buttons
     private:
-        byte num_of_buttons = 4;
+        byte num_of_buttons = NUM_OF_BUTTONS;
         byte* pins_;
 
         /**
@@ -30,7 +32,7 @@ class buttons {
         }
 
     public:
-        buttons(byte pins[]) {
+        buttons(byte pins[NUM_OF_BUTTONS]) {
             
             pins_ = new byte[num_of_buttons];
 
