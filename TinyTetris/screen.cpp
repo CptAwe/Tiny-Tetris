@@ -77,6 +77,14 @@ class screen{
             return sum;
         }
 
+		byte empty_row[4*8] = {// Default row with no blocks filled
+			0B01000000, 0B00000000, 0B00000000, 0B00000000, 0B00000000, 0B00000000, 0B00000000, 0B00000010,
+			0B01000000, 0B00000000, 0B00000000, 0B00000000, 0B00000000, 0B00000000, 0B00000000, 0B00000010,
+			0B01000000, 0B00000000, 0B00000000, 0B00000000, 0B00000000, 0B00000000, 0B00000000, 0B00000010,
+			0B01000000, 0B00000000, 0B00000000, 0B00000000, 0B00000000, 0B00000000, 0B00000000, 0B00000010
+		};
+		byte empty_row_size = sizeof(empty_row)/sizeof(byte);
+
 	public:
 
 		void init(){
@@ -97,7 +105,7 @@ class screen{
 			// TODO: This can be squished even more. Each square doesn't need to be one byte.
 			for (int i=0; i<PLAY_LINES; i++){
 				for (int j=0; j<PLAY_COLUMNS; j++){
-					play_screen[i][j] = true;
+					play_screen[i][j] = false;
 				}
 			}
 		}
@@ -142,7 +150,7 @@ class screen{
 
 		void draw(
 			byte column_start, byte column_end, byte page_start, byte page_end,
-			byte data[], bool read_from_progmem, bool invert = false) {
+			byte data[], bool read_from_progmem = false, bool invert = false) {
 			// draws on the screen by vertical addressing
 			// The data array has to be mirrored
 
@@ -256,29 +264,69 @@ class screen{
 			draw(5, 6, 7, 8, 0B01111111);// top left point
 		}
 
-		void drawPlayArea(byte x /*line*/, byte y /*column*/, bool color){
+		void drawPlayArea(byte x /*line*/, byte y /*column*/, bool color = true){
 			// Fills appropriate box on the play area coordinates
 			// The x,y values refer to the number of columns and lines a tetris game has.
 
 			// The 0,0 coordinates are the top right corner, to be consistent with the vertical addressing
-			play_screen[x][y] = true;
-			updatePlayArea();
+			play_screen[x][y] = color;
+			// updatePlayArea();
 		}
 
 		void updatePlayArea() {
-			// Updates the play area on the screen
-			// Check each column first and then each line.
-			// Some columns affect more than one page.
-			// Thus the adjacent columns have to also be checked.
+			/** Updates the play area on the screen
+			 * 
+			 * Check each column first and then each line.
+			 * Some columns affect more than one page.
+			 * Thus the adjacent columns have to also be checked.
+			 *
+			 * The checking occurs in 4 groups.
+			 * Group 1: Column 0
+			 * Group 2: Columns 1, 2, 3, 4
+			 * Group 3: Columns 5, 6, 7, 8
+			 * Group 4: Columns 9
+			 * 
+			 * Each tetris line coresponds to a line on the screen.
+			 *  Tetris Line | Display line 
+			 *       19     |   121-124     | x1 - y1
+			 *       18     |   115-118     | x2 - x1-3
+			 *       17     |   109-112     | x3 - x2-3
+			 *       ...    |     ...       |
+			 *  ------------|---------------|
+			 *                 x-3 - x
+			*/
+			byte actual_line_end = 124;// The line of the display
+			for (byte line = PLAY_LINES-1; line < 255; line--) {// from bottom to top
+				byte current_row[empty_row_size];
+				byte actual_line_start = actual_line_end - 3;
 
-			for (byte col = 0; col < PLAY_COLUMNS; col++){
-				for (byte line = 19; line >= 0; line--){// Check it in reverse
-					if (play_screen[line][col]){
-						// check adjacent columns (beware of the end conditions)
-					}
+				memcpy(current_row, empty_row, empty_row_size*sizeof(byte));
+
+				// Group 1: Column 0
+				if (play_screen[line][0]){
+					current_row[0]  += 0B00011110;
+					current_row[8]  += 0B00011110;
+					current_row[16] += 0B00011110;
+					current_row[24] += 0B00011110;
 				}
+
+				// Group 4: Column 9
+				if (play_screen[line][PLAY_COLUMNS-1]){
+					current_row[7]  += 0B01111000;
+					current_row[15] += 0B01111000;
+					current_row[23] += 0B01111000;
+					current_row[31] += 0B01111000;
+				}
+
+				draw(actual_line_start, actual_line_end+1,
+					0, 8,
+					current_row
+				);
+
+				actual_line_end -= 6;// (-3) + (-3) from the start of the for loop
 			}
 		}
+
 
 };
 

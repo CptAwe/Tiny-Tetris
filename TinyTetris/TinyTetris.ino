@@ -1,6 +1,5 @@
 #include "buttons.cpp"
 #include "graphics.cpp"
-#include "blocks.cpp"
 #include "screen.cpp"
 // #include "TetrisTheme.cpp" // Too much for an Atmega168 5v@16MHz
 
@@ -67,11 +66,30 @@ void loop() {
 	// );
 
 	display.drawPerimiter();
+	Serial.println("made perimeter");
+
+	// for (byte i=0; i<20; i++) {
+	// 	for (byte j=0; j<10; i++) {
+	// 		display.drawPlayArea(i,j);
+	// 	}
+	// }
+
+	for (byte i=0; i<=19; i++){
+		display.drawPlayArea(i, 9);
+		display.drawPlayArea(i, 0);
+	}
+
+
+	// display.drawPlayArea(19, 9);
+	
+
+	Serial.println("done_filling");
+	display.updatePlayArea();
 	
 
 	// display.inverse();
 
-
+	Serial.println("done");
 	while (true){
 		// Serial.println(Dpad.states());
 	}
