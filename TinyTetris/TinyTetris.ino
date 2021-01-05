@@ -75,8 +75,17 @@ void loop() {
 	// }
 
 	for (byte i=0; i<=19; i++){
-		display.drawPlayArea(i, 9);
 		display.drawPlayArea(i, 0);
+		display.drawPlayArea(i, 1);
+		display.drawPlayArea(i, 2);
+		display.drawPlayArea(i, 3);
+		display.drawPlayArea(i, 4);
+		display.drawPlayArea(i, 5);
+		display.drawPlayArea(i, 6);
+		display.drawPlayArea(i, 7);
+		display.drawPlayArea(i, 8);
+		display.drawPlayArea(i, 9);
+		display.updatePlayArea();
 	}
 
 
@@ -84,7 +93,6 @@ void loop() {
 	
 
 	Serial.println("done_filling");
-	display.updatePlayArea();
 	
 
 	// display.inverse();

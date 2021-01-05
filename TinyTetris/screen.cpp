@@ -304,18 +304,64 @@ class screen{
 
 				// Group 1: Column 0
 				if (play_screen[line][0]){
-					current_row[0]  += 0B00011110;
-					current_row[8]  += 0B00011110;
-					current_row[16] += 0B00011110;
-					current_row[24] += 0B00011110;
+					for (byte i=0; i<=28; i+=8){
+						current_row[i] += 0B00011110;
+					}
+				}
+
+				// Group 2: Columns 1, 2, 3, 4
+				if (play_screen[line][1]) {
+					for (byte i=1; i<=25; i+=8){
+						current_row[i] += 0B01111000;
+					}
+				}
+				if (play_screen[line][2]) {
+					for (byte i=2; i<=26; i+=8){
+						current_row[i-1] += 0B00000001;
+						current_row[i]   += 0B11100000;
+					}
+				}
+				if (play_screen[line][3]) {
+					for (byte i=2; i<=26; i+=8){
+						current_row[i]   += 0B00000111;
+						current_row[i+1] += 0B10000000;
+					}
+				}
+				if (play_screen[line][4]) {
+					for (byte i=3; i<=27; i+=8){
+						current_row[i] += 0B00011110;
+					}
+				}
+
+				//Group 3: Columns 5, 6, 7, 8
+				if (play_screen[line][5]) {
+					for (byte i=4; i<=28; i+=8){
+						current_row[i] += 0B01111000;
+					}
+				}
+				if (play_screen[line][6]) {
+					for (byte i=4; i<=28; i+=8){
+						current_row[i]   += 0B00000001;
+						current_row[i+1] += 0B11100000;
+					}
+				}
+				if (play_screen[line][7]) {
+					for (byte i=5; i<=29; i+=8){
+						current_row[i]   += 0B00000111;
+						current_row[i+1] += 0B10000000;
+					}
+				}
+				if (play_screen[line][8]) {
+					for (byte i=6; i<=30; i+=8){
+						current_row[i] += 0B00011110;
+					}
 				}
 
 				// Group 4: Column 9
 				if (play_screen[line][PLAY_COLUMNS-1]){
-					current_row[7]  += 0B01111000;
-					current_row[15] += 0B01111000;
-					current_row[23] += 0B01111000;
-					current_row[31] += 0B01111000;
+					for (byte i=7; i<=31; i+=8){
+						current_row[i] += 0B01111000;
+					}
 				}
 
 				draw(actual_line_start, actual_line_end+1,
