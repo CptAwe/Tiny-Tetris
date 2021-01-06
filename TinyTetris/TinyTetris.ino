@@ -85,7 +85,7 @@ void loop() {
 		display.drawPlayArea(i, 7);
 		display.drawPlayArea(i, 8);
 		display.drawPlayArea(i, 9);
-		display.updatePlayArea();
+		display.updatePlayArea(i);
 	}
 
 

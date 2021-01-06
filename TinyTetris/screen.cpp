@@ -243,15 +243,16 @@ class screen{
 		}
 
 		void drawPerimiter() {
-			// The perimiter is a square (column, page, byte):
-			// 
-			//                             0B11111111
-			//         A(5, 7, 0B01111111)    ----    B(5, 0, 0B11111110)
-			//                 |                           |
-			//  0B01000000     |                           |  0B00000010
-			//                 |                           |
-			//        C(126, 7, 0B01111111)   ----    D(126 , 0, 0B11111110)
-			//                             0B11111111
+			/** The perimiter is a square (column, page, byte):
+			 * 
+			 *                              0B11111111
+			 *          A(5, 7, 0B01111111)    ----    B(5, 0, 0B11111110)
+			 *                  |                           |
+			 *   0B01000000     |                           |  0B00000010
+			 *                  |                           |
+			 *         C(126, 7, 0B01111111)   ----    D(126 , 0, 0B11111110)
+			 *                              0B11111111
+			*/
 
 			draw(5, 6, 1, 7, 255);// top line
 			draw(5, 127, 0, 1, 0B00000010);// right line
@@ -270,11 +271,10 @@ class screen{
 
 			// The 0,0 coordinates are the top right corner, to be consistent with the vertical addressing
 			play_screen[x][y] = color;
-			// updatePlayArea();
 		}
 
 		void updatePlayArea() {
-			/** Updates the play area on the screen
+			/** Updates the whole play area on the screen
 			 * 
 			 * Check each column first and then each line.
 			 * Some columns affect more than one page.
@@ -294,6 +294,8 @@ class screen{
 			 *       ...    |     ...       |
 			 *  ------------|---------------|
 			 *                 x-3 - x
+			 * 
+			 * NOTE: This function can be replaced by the updatePlayArea(byte line).
 			*/
 			byte actual_line_end = 124;// The line of the display
 			for (byte line = PLAY_LINES-1; line < 255; line--) {// from bottom to top
@@ -371,6 +373,88 @@ class screen{
 
 				actual_line_end -= 6;// (-3) + (-3) from the start of the for loop
 			}
+		}
+
+		void updatePlayArea(byte line) {
+			/** Updates a specific tetris line
+			 * 
+			 * "line" refers to the tetris lines, not the display's.
+			 * 0 is the bottom line, 19 the top.
+			 * 
+			*/
+			byte actual_line_end = 124 - line*6;// The line of the display
+			byte current_row[empty_row_size];
+			byte actual_line_start = actual_line_end - 3;
+
+			memcpy(current_row, empty_row, empty_row_size*sizeof(byte));
+
+			// Group 1: Column 0
+			if (play_screen[line][0]){
+				for (byte i=0; i<=28; i+=8){
+					current_row[i] += 0B00011110;
+				}
+			}
+
+			// Group 2: Columns 1, 2, 3, 4
+			if (play_screen[line][1]) {
+				for (byte i=1; i<=25; i+=8){
+					current_row[i] += 0B01111000;
+				}
+			}
+			if (play_screen[line][2]) {
+				for (byte i=2; i<=26; i+=8){
+					current_row[i-1] += 0B00000001;
+					current_row[i]   += 0B11100000;
+				}
+			}
+			if (play_screen[line][3]) {
+				for (byte i=2; i<=26; i+=8){
+					current_row[i]   += 0B00000111;
+					current_row[i+1] += 0B10000000;
+				}
+			}
+			if (play_screen[line][4]) {
+				for (byte i=3; i<=27; i+=8){
+					current_row[i] += 0B00011110;
+				}
+			}
+
+			//Group 3: Columns 5, 6, 7, 8
+			if (play_screen[line][5]) {
+				for (byte i=4; i<=28; i+=8){
+					current_row[i] += 0B01111000;
+				}
+			}
+			if (play_screen[line][6]) {
+				for (byte i=4; i<=28; i+=8){
+					current_row[i]   += 0B00000001;
+					current_row[i+1] += 0B11100000;
+				}
+			}
+			if (play_screen[line][7]) {
+				for (byte i=5; i<=29; i+=8){
+					current_row[i]   += 0B00000111;
+					current_row[i+1] += 0B10000000;
+				}
+			}
+			if (play_screen[line][8]) {
+				for (byte i=6; i<=30; i+=8){
+					current_row[i] += 0B00011110;
+				}
+			}
+
+			// Group 4: Column 9
+			if (play_screen[line][PLAY_COLUMNS-1]){
+				for (byte i=7; i<=31; i+=8){
+					current_row[i] += 0B01111000;
+				}
+			}
+
+			draw(actual_line_start, actual_line_end+1,
+				0, 8,
+				current_row
+			);
+			
 		}
 
 
