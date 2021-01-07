@@ -1,14 +1,12 @@
 #include "buttons.cpp"
 #include "graphics.cpp"
+#include "staticGraphics.cpp"
 #include "screen.cpp"
 // #include "TetrisTheme.cpp" // Too much for an Atmega168 5v@16MHz
 
 // [GeoPap] The new display manager
 screen display;
-graphics::titleScreen title_screen;
-graphics::blocks::I I_block;
-graphics::blocks::J J_block;
-graphics::blocks::L L_block;
+staticGraphics::titleScreen title_screen;
 
 // pins for buttons
 #define KEY_LEFT_pin    6
@@ -56,7 +54,7 @@ void setup() {
 
 
 void loop() {
-
+	// graphics::TetrisBlocks::I I_block;
 	
 
 	// display.draw(
@@ -74,23 +72,23 @@ void loop() {
 	// 	}
 	// }
 
-	for (byte i=0; i<=19; i++){
-		display.drawPlayArea(i, 0);
-		display.drawPlayArea(i, 1);
-		display.drawPlayArea(i, 2);
-		display.drawPlayArea(i, 3);
-		display.drawPlayArea(i, 4);
-		display.drawPlayArea(i, 5);
-		display.drawPlayArea(i, 6);
-		display.drawPlayArea(i, 7);
-		display.drawPlayArea(i, 8);
-		display.drawPlayArea(i, 9);
-		display.updatePlayArea(i);
-	}
+	// for (byte i=0; i<=19; i++){
+	// 	display.drawPlayArea(i, 0);
+	// 	display.drawPlayArea(i, 1);
+	// 	display.drawPlayArea(i, 2);
+	// 	display.drawPlayArea(i, 3);
+	// 	display.drawPlayArea(i, 4);
+	// 	display.drawPlayArea(i, 5);
+	// 	display.drawPlayArea(i, 6);
+	// 	display.drawPlayArea(i, 7);
+	// 	display.drawPlayArea(i, 8);
+	// 	display.drawPlayArea(i, 9);
+	// 	display.updatePlayArea(i);
+	// }
 
 
 	// display.drawPlayArea(19, 9);
-	
+	// display.drawPiece(0, 0, I_block);
 
 	Serial.println("done_filling");
 	

@@ -11,6 +11,7 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <EEPROM.h>
+#include "graphics.cpp"
 
 class screen{
 
@@ -456,6 +457,23 @@ class screen{
 			);
 			
 		}
+
+		// void drawPiece(byte line, byte column, graphics::TetrisBlocks::I piece) {
+		// 	/**
+		// 	 * Draws a piece on the screen.
+		// 	 * It deletes anything that was on it before though.
+		// 	 * 
+		// 	 * 
+		// 	*/
+
+		// 	// drawPlayArea(x,y)
+		// 	piece.init(line, column);
+		// 	drawPlayArea(piece.A.line, piece.A.column);
+		// 	drawPlayArea(piece.B.line, piece.B.column);
+		// 	drawPlayArea(piece.C.line, piece.C.column);
+		// 	drawPlayArea(piece.D.line, piece.D.column);
+
+		// }
 
 
 };
