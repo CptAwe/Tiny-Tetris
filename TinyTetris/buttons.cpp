@@ -32,7 +32,7 @@ class buttons {
         }
 
     public:
-        buttons(byte pins[NUM_OF_BUTTONS]) {
+        buttons(const byte pins[NUM_OF_BUTTONS]) {
             
             pins_ = new byte[num_of_buttons];
 

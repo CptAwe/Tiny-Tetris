@@ -458,7 +458,7 @@ class screen{
 			
 		}
 
-		// void drawPiece(byte line, byte column, graphics::TetrisBlocks::I piece) {
+		// void drawPiece(byte line, byte column, graphics::TetrisBlocks piece) {
 		// 	/**
 		// 	 * Draws a piece on the screen.
 		// 	 * It deletes anything that was on it before though.
