@@ -479,7 +479,6 @@ class screen{
 			 * 
 			*/
 
-			Serial.println("drawPieceNupdate()");
 			piece.init(line, column);
 			drawPlayArea(piece.A.line, piece.A.column);
 			updatePlayArea(piece.A.line);
@@ -528,7 +527,6 @@ class screen{
 			/**
 			 * Deletes the piece on the previous position and moves it one position down
 			 * 
-			 * "line" and "column" refer to the destination.
 			 * It returns 'true' if the move was successful and 'false' if a collision was detected.
 			 * 
 			*/
@@ -539,8 +537,20 @@ class screen{
 				return false;
 			}
 
-			if (play_screen[lowest_point+1][piece.lowest().column]) {// it has collided with another piece
-				return false;
+			/**
+			 * Detect colision with another piece
+			 * 
+			 * Check only the pieces that are on a unique column
+			 * if they have a piece under them.
+			*/
+			for (byte i=0; i<=3; i++) {
+				graphics::block temp = *piece.blks[i];
+				if (temp.line != lowest_point) {
+					continue;
+				}
+				if (play_screen[temp.line + 1][temp.column]) {
+					return false;
+				}
 			}
 
 			deletePiece(piece.A.line, piece.A.column, piece);
@@ -556,7 +566,6 @@ class screen{
 
 			// find the lowest line of the piece
 			byte lowest_point = piece.lowest().line;
-			return lowest_point;
 			if (lowest_point == PLAY_LINES-1) {// it has reached the bottom
 				return false;
 			}

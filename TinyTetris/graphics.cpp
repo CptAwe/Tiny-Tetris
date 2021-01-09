@@ -1,5 +1,5 @@
 /**
- * 
+ * Handles the low level talking to the screen
  * 
  * 
 */
@@ -8,10 +8,11 @@
 #define GRAPHICSCPP
 
 #include <Arduino.h>
+#include <Printable.h>
 
 class graphics {
     public:
-        class block : public Printable{
+        class block : public Printable {
             // Each pixel of a tetris block
             public:
                 byte line;
@@ -20,7 +21,8 @@ class graphics {
                     line=_line;
                     column=_column;
                 }
-                size_t printTo(Print& p) const {
+                
+                virtual size_t printTo(Print& p) const {
                     size_t r = 0;
                     r += p.print("{");
                     r += p.print(line);
@@ -31,7 +33,7 @@ class graphics {
                 }
         };
 
-        class blocks : public graphics::block {
+        class blocks : public graphics::block/**, public Printable*/ {
             public:
                 graphics::block A;
                 graphics::block B;
@@ -40,8 +42,18 @@ class graphics {
                 graphics::block *blks[4] = {&A, &B, &C, &D};
 
                 using graphics::block::init;
-                virtual void init(byte line = 0, byte column = 0) {
-                };
+                virtual void init(byte line = 0, byte column = 0);
+                
+                // size_t printTo(Print& p) const {
+                //     size_t r = 0;
+                //     for (byte i=0; i<=3; i++) {
+                //         r += p.print(*blks[i]);
+                //         if (i != 3) {
+                //             r += p.print(", ");
+                //         }
+                //     }
+                //     return r;
+                // }
 
                 graphics::block lowest() {
                     // returns the lowest block, thus the block with the highest line.
@@ -61,7 +73,8 @@ class graphics {
         class I : public graphics::blocks {
             public:
                 using graphics::blocks::init;
-                using graphics::blocks::blks;
+                // using graphics::blocks::blks;
+                // using graphics::blocks::printTo;
                 void init(byte line = 0, byte column = 0) {
                     A.init(line  , column);
                     B.init(line+1, column);
@@ -81,6 +94,7 @@ class graphics {
             private:
                 byte turn_flag = 0;
             public:
+                using graphics::blocks::printTo;
                 void init(byte line = 0, byte column = 0) {
                     A.init(line  , column);
                     B.init(line+1, column);
