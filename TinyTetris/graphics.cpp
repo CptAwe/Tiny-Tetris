@@ -11,7 +11,7 @@
 
 class graphics {
     public:
-        class block{
+        class block : public Printable{
             // Each pixel of a tetris block
             public:
                 byte line;
@@ -19,6 +19,15 @@ class graphics {
                 void init(byte _line, byte _column) {
                     line=_line;
                     column=_column;
+                }
+                size_t printTo(Print& p) const {
+                    size_t r = 0;
+                    r += p.print("{");
+                    r += p.print(line);
+                    r += p.print(", ");
+                    r += p.print(column);
+                    r += p.print("}");
+                    return r;
                 }
         };
 
@@ -28,18 +37,21 @@ class graphics {
                 graphics::block B;
                 graphics::block C;
                 graphics::block D;
-                graphics::block blks[4] = {A, B, C, D};
+                graphics::block *blks[4] = {&A, &B, &C, &D};
 
-                // virtual void init(byte line = 0, byte column = 0);
+                using graphics::block::init;
+                virtual void init(byte line = 0, byte column = 0) {
+                };
 
                 graphics::block lowest() {
                     // returns the lowest block, thus the block with the highest line.
                     byte max_line = A.line;
                     graphics::block lowest = A;
                     for (byte i=1; i<=3; i++) {
-                        if (blks[i].line > max_line) {
-                            lowest = blks[i];
-                            max_line = blks[i].line;
+                        graphics::block temp = *blks[i];
+                        if (temp.line > max_line) {
+                            lowest = temp;
+                            max_line = temp.line;
                         }
                     }
                     return lowest;
@@ -48,6 +60,8 @@ class graphics {
 
         class I : public graphics::blocks {
             public:
+                using graphics::blocks::init;
+                using graphics::blocks::blks;
                 void init(byte line = 0, byte column = 0) {
                     A.init(line  , column);
                     B.init(line+1, column);

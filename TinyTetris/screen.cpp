@@ -479,6 +479,7 @@ class screen{
 			 * 
 			*/
 
+			Serial.println("drawPieceNupdate()");
 			piece.init(line, column);
 			drawPlayArea(piece.A.line, piece.A.column);
 			updatePlayArea(piece.A.line);
@@ -557,7 +558,7 @@ class screen{
 			byte lowest_point = piece.lowest().line;
 			return lowest_point;
 			if (lowest_point == PLAY_LINES-1) {// it has reached the bottom
-				return 0;
+				return false;
 			}
 
 			/**
@@ -567,17 +568,18 @@ class screen{
 			 * if they have a piece under them.
 			*/
 			for (byte i=0; i<=3; i++) {
-				if (piece.blks[i].line != lowest_point) {
+				graphics::block temp = *piece.blks[i];
+				if (temp.line != lowest_point) {
 					continue;
 				}
-				if (play_screen[piece.blks[i].line + 1][piece.blks[i].column]) {
-					return 1;
+				if (play_screen[temp.line + 1][temp.column]) {
+					return false;
 				}
 			}
 
 			deletePieceNupdate(piece.A.line, piece.A.column, piece);
 			drawPieceNupdate(piece.A.line + 1, piece.A.column, piece);
-			return 2;
+			return true;
 		}
 
 

@@ -57,20 +57,21 @@ void setup() {
 void loop() {
 	graphics::I I_block;
 	I_block.init();
-	graphics::L L_block;
-	L_block.init();
+	// graphics::L L_block;
+	// L_block.init();
 
 	Serial.println("made perimeter");
 
 	// Serial.println(L_block.turnRight());
 	// display.drawPieceNupdate(0, 5, L_block);
 
-	display.drawPieceNupdate(0, 0, I_block);
-	display.drawPieceNupdate(10, 0, L_block);
+	display.drawPiece(10, 0, I_block);
+	display.updatePlayArea();
+	// display.drawPieceNupdate(10, 0, L_block);
 
 	for (byte i=0; i<=3; i++) {
 		Serial.print("--");
-		Serial.println(I_block.blks[i].line);
+		Serial.println(*I_block.blks[i]);
 	}
 
 	Serial.println(display.movePieceDownNupdate(I_block));
