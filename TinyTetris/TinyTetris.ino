@@ -65,7 +65,6 @@ void loop() {
 	// Serial.println(L_block.turnRight());
 	// display.drawPieceNupdate(0, 5, L_block);
 
-	Serial.println(I_block);
 	display.drawPieceNupdate(0, 0, I_block);
 	display.drawPieceNupdate(10, 0, L_block);
 
