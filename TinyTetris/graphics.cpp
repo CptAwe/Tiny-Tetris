@@ -11,83 +11,136 @@
 
 class graphics {
     public:
-        class block {
+        class block : virtual public Printable{
             // Each pixel of a tetris block
             public:
                 byte line;
                 byte column;
-                void set(byte _line, byte _column) {
+                void init(byte _line, byte _column) {
                     line=_line;
                     column=_column;
                 }
+
+                virtual size_t printTo(Print& p) const {
+                    size_t r = 0;
+                    r += p.print("{");
+                    r += p.print(line);
+                    r += p.print(", ");
+                    r += p.print(column);
+                    r += p.print("}");
+                    return r;
+                }
         };
-        class blocks : public graphics::block{
+
+        class blocks : public graphics::block, virtual public Printable {
             public:
                 graphics::block A;
                 graphics::block B;
                 graphics::block C;
                 graphics::block D;
+                graphics::block blks[4] = {A, B, C, D};
+
+                // virtual void init(byte line = 0, byte column = 0);
+
+                virtual size_t printTo(Print& p) const {
+                    size_t r = 0;
+                    for (byte i=0; i<=3; i++) {
+                        r += p.print(blks[i]);
+                        if (i!=3) {
+                            r += p.print(", ");
+                        }
+                    }
+                    return r;
+                }
+
+                graphics::block lowest() {
+                    // returns the lowest block, thus the block with the highest line.
+                    byte max_line = A.line;
+                    graphics::block lowest = A;
+                    for (byte i=1; i<=3; i++) {
+                        if (blks[i].line > max_line) {
+                            lowest = blks[i];
+                            max_line = blks[i].line;
+                        }
+                    }
+                    return lowest;
+                }
         };
 
-        class I : public graphics::blocks {
-            private:
-                graphics::blocks _I;
+        class I : public graphics::blocks, public Printable {
             public:
                 void init(byte line = 0, byte column = 0) {
-                    _I.A.set(line  , column);
-                    _I.B.set(line+1, column);
-                    _I.A.set(line+2, column);
-                    _I.A.set(line+3, column);
+                    A.init(line  , column);
+                    B.init(line+1, column);
+                    C.init(line+2, column);
+                    D.init(line+3, column);
+                }
+                size_t printTo(Print& p) const {
+                    size_t r = 0;
+                    for (byte i=0; i<=3; i++) {
+                        r += p.print(blks[i]);
+                        if (i!=3) {
+                            r += p.print(", ");
+                        }
+                    }
+                    return r;
                 }
                 void turnRight() {
                     // A is the pivot. it stays unchanged throughout.
-                    _I.B.set(_I.B.column, _I.B.line);
-                    _I.C.set(_I.C.column, _I.C.line);
-                    _I.D.set(_I.D.column, _I.D.line);
+                    B.init(B.column, B.line);
+                    C.init(C.column, C.line);
+                    D.init(D.column, D.line);
                 }
         };
+        
 
         class L  : public graphics::blocks {
             private:
-                graphics::blocks _L;
                 byte turn_flag = 0;
             public:
                 void init(byte line = 0, byte column = 0) {
-                    _L.A.set(line  , column);
-                    _L.B.set(line+1, column);
-                    _L.A.set(line+2, column);
-                    _L.A.set(line+2, column+1);
+                    A.init(line  , column);
+                    B.init(line+1, column);
+                    C.init(line+2, column);
+                    D.init(line+2, column+1);
                 }
-                void turnRight() {
+                bool turnRight() {
                     // B is the pivot. it stays unchanged throughout.
                     switch (turn_flag) {
                         case 0:// top to right
-                            _L.A.set(_L.A.line+1, _L.A.column+1);
-                            _L.C.set(_L.C.line-1, _L.C.column-1);
-                            _L.D.set(_L.D.line,   _L.D.column-2);
+                            A.init(A.line+1, A.column+1);
+                            C.init(C.line-1, C.column-1);
+                            D.init(D.line,   D.column-2);
                             turn_flag++;
+                            return true;
                             break;
                         case 1:// right to bottom
-                            _L.A.set(_L.A.line+1, _L.A.column+1);
-                            _L.C.set(_L.C.line-1, _L.C.column+1);
-                            _L.D.set(_L.D.line-2, _L.D.column);
+                            A.init(A.line+1, A.column+1);
+                            C.init(C.line-1, C.column+1);
+                            D.init(D.line-2, D.column);
                             turn_flag++;
+                            return true;
                             break;
                         case 2:// bottom to left
-                            _L.A.set(_L.A.line-1, _L.A.column-1);
-                            _L.C.set(_L.C.line+1, _L.C.column+1);
-                            _L.D.set(_L.D.line, _L.D.column-2);
+                            A.init(A.line-1, A.column-1);
+                            C.init(C.line+1, C.column+1);
+                            D.init(D.line, D.column-2);
                             turn_flag++;
+                            return true;
                             break;
                         case 3:// left to top
-                            _L.A.set(_L.A.line-1, _L.A.column+1);
-                            _L.C.set(_L.C.line+1, _L.C.column-1);
-                            _L.D.set(_L.D.line-2, _L.D.column);
+                            A.init(A.line-1, A.column+1);
+                            C.init(C.line+1, C.column-1);
+                            D.init(D.line-2, D.column);
                             turn_flag = 0;
+                            return true;
                             break;
                     }
+                    return false;
                 }
         };
+
+        
         
 
 };

@@ -270,7 +270,7 @@ class screen{
 			// Fills appropriate box on the play area coordinates
 			// The x,y values refer to the number of columns and lines a tetris game has.
 
-			// The 0,0 coordinates are the top right corner, to be consistent with the vertical addressing
+			// The 0,0 coordinates are the top left corner, to be consistent with the vertical addressing
 			play_screen[x][y] = color;
 		}
 
@@ -380,10 +380,10 @@ class screen{
 			/** Updates a specific tetris line
 			 * 
 			 * "line" refers to the tetris lines, not the display's.
-			 * 0 is the bottom line, 19 the top.
+			 * 0 is the top line, 19 the bottom.
 			 * 
 			*/
-			byte actual_line_end = 124 - line*6;// The line of the display
+			byte actual_line_end = 124 - ((PLAY_LINES-1) - line)*6;// The line of the display
 			byte current_row[empty_row_size];
 			byte actual_line_start = actual_line_end - 3;
 
@@ -458,22 +458,127 @@ class screen{
 			
 		}
 
-		// void drawPiece(byte line, byte column, graphics::TetrisBlocks piece) {
-		// 	/**
-		// 	 * Draws a piece on the screen.
-		// 	 * It deletes anything that was on it before though.
-		// 	 * 
-		// 	 * 
-		// 	*/
+		void drawPiece(byte line, byte column, graphics::blocks & piece) {
+			/**
+			 * Draws a piece on the screen.
+			 * 
+			*/
 
-		// 	// drawPlayArea(x,y)
-		// 	piece.init(line, column);
-		// 	drawPlayArea(piece.A.line, piece.A.column);
-		// 	drawPlayArea(piece.B.line, piece.B.column);
-		// 	drawPlayArea(piece.C.line, piece.C.column);
-		// 	drawPlayArea(piece.D.line, piece.D.column);
+			piece.init(line, column);
+			drawPlayArea(piece.A.line, piece.A.column);
+			drawPlayArea(piece.B.line, piece.B.column);
+			drawPlayArea(piece.C.line, piece.C.column);
+			drawPlayArea(piece.D.line, piece.D.column);
 
-		// }
+		}
+
+		void drawPieceNupdate(byte line, byte column, graphics::blocks & piece) {
+			/**
+			 * Draws a piece on the screen and updates only the part of
+			 * the screen that is affected.
+			 * 
+			*/
+
+			piece.init(line, column);
+			drawPlayArea(piece.A.line, piece.A.column);
+			updatePlayArea(piece.A.line);
+			drawPlayArea(piece.B.line, piece.B.column);
+			updatePlayArea(piece.B.line);
+			drawPlayArea(piece.C.line, piece.C.column);
+			updatePlayArea(piece.C.line);
+			drawPlayArea(piece.D.line, piece.D.column);
+			updatePlayArea(piece.D.line);
+
+		}
+
+		void deletePiece(byte line, byte column, graphics::blocks & piece) {
+			/**
+			 * Deletes a piece on the screen and updates only the part of
+			 * the screen that is affected.
+			 * 
+			*/
+
+			piece.init(line, column);
+			drawPlayArea(piece.A.line, piece.A.column, false);
+			drawPlayArea(piece.B.line, piece.B.column, false);
+			drawPlayArea(piece.C.line, piece.C.column, false);
+			drawPlayArea(piece.D.line, piece.D.column, false);
+		}
+
+		void deletePieceNupdate(byte line, byte column, graphics::blocks & piece) {
+			/**
+			 * Deletes a piece on the screen and updates only the part of
+			 * the screen that is affected.
+			 * 
+			*/
+
+			piece.init(line, column);
+			drawPlayArea(piece.A.line, piece.A.column, false);
+			updatePlayArea(piece.A.line);
+			drawPlayArea(piece.B.line, piece.B.column, false);
+			updatePlayArea(piece.B.line);
+			drawPlayArea(piece.C.line, piece.C.column, false);
+			updatePlayArea(piece.C.line);
+			drawPlayArea(piece.D.line, piece.D.column, false);
+			updatePlayArea(piece.D.line);
+		}
+
+		bool movePieceDown(graphics::blocks & piece) {
+			/**
+			 * Deletes the piece on the previous position and moves it one position down
+			 * 
+			 * "line" and "column" refer to the destination.
+			 * It returns 'true' if the move was successful and 'false' if a collision was detected.
+			 * 
+			*/
+
+			// find the lowest line of the piece
+			byte lowest_point = piece.lowest().line;
+			if (lowest_point == PLAY_LINES-1) {// it has reached the bottom
+				return false;
+			}
+
+			if (play_screen[lowest_point+1][piece.lowest().column]) {// it has collided with another piece
+				return false;
+			}
+
+			deletePiece(piece.A.line, piece.A.column, piece);
+			drawPiece(piece.A.line + 1, piece.A.column, piece);
+			return true;
+		}
+
+		int movePieceDownNupdate(graphics::blocks & piece) {
+			/**
+			 * Same as above but with built in update.
+			 * 
+			*/
+
+			// find the lowest line of the piece
+			byte lowest_point = piece.lowest().line;
+			return lowest_point;
+			if (lowest_point == PLAY_LINES-1) {// it has reached the bottom
+				return 0;
+			}
+
+			/**
+			 * Detect colision with another piece
+			 * 
+			 * Check only the pieces that are on a unique column
+			 * if they have a piece under them.
+			*/
+			for (byte i=0; i<=3; i++) {
+				if (piece.blks[i].line != lowest_point) {
+					continue;
+				}
+				if (play_screen[piece.blks[i].line + 1][piece.blks[i].column]) {
+					return 1;
+				}
+			}
+
+			deletePieceNupdate(piece.A.line, piece.A.column, piece);
+			drawPieceNupdate(piece.A.line + 1, piece.A.column, piece);
+			return 2;
+		}
 
 
 };

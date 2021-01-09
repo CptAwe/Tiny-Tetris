@@ -4,7 +4,6 @@
 #include "screen.cpp"
 // #include "TetrisTheme.cpp" // Too much for an Atmega168 5v@16MHz
 
-// [GeoPap] The new display manager
 screen display;
 staticGraphics::titleScreen title_screen;
 
@@ -50,45 +49,35 @@ void setup() {
 
 	display.clear();
 
+	display.drawPerimiter();
+
 }
 
 
 void loop() {
-	// graphics::TetrisBlocks::I I_block;
-	
+	graphics::I I_block;
+	I_block.init();
+	graphics::L L_block;
+	L_block.init();
 
-	// display.draw(
-	// 	0,
-	// 	0,
-	// 	1
-	// );
-
-	display.drawPerimiter();
 	Serial.println("made perimeter");
 
-	// for (byte i=0; i<20; i++) {
-	// 	for (byte j=0; j<10; i++) {
-	// 		display.drawPlayArea(i,j);
-	// 	}
+	// Serial.println(L_block.turnRight());
+	// display.drawPieceNupdate(0, 5, L_block);
+
+	Serial.println(I_block);
+	display.drawPieceNupdate(0, 0, I_block);
+	display.drawPieceNupdate(10, 0, L_block);
+
+	for (byte i=0; i<=3; i++) {
+		Serial.print("--");
+		Serial.println(I_block.blks[i].line);
+	}
+
+	Serial.println(display.movePieceDownNupdate(I_block));
+	// while (display.movePieceDownNupdate(I_block)) {
+	// 	delay(1000);
 	// }
-
-	// for (byte i=0; i<=19; i++){
-	// 	display.drawPlayArea(i, 0);
-	// 	display.drawPlayArea(i, 1);
-	// 	display.drawPlayArea(i, 2);
-	// 	display.drawPlayArea(i, 3);
-	// 	display.drawPlayArea(i, 4);
-	// 	display.drawPlayArea(i, 5);
-	// 	display.drawPlayArea(i, 6);
-	// 	display.drawPlayArea(i, 7);
-	// 	display.drawPlayArea(i, 8);
-	// 	display.drawPlayArea(i, 9);
-	// 	display.updatePlayArea(i);
-	// }
-
-
-	// display.drawPlayArea(19, 9);
-	// display.drawPiece(0, 0, I_block);
 
 	Serial.println("done_filling");
 	
