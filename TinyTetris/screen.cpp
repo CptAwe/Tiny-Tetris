@@ -1,8 +1,12 @@
-/* The OLED screen is set into Page Addressing Mode. This means that there are
+/**
+ * The OLED screen is set into Page Addressing Mode. This means that there are
  * 128 columns and 8*(8 pages).
  * 
  * very informative read:
  * https://iotexpert.com/debugging-ssd1306-display-problems/
+ * 
+ * This handles all the low level functions for the screen.
+ * 
 */
 
 #ifndef SCREENCPP
@@ -11,11 +15,14 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <EEPROM.h>
+
 #include "graphics.cpp"
+#include "staticGraphics.cpp"
 
 class screen{
 
     private:
+		friend class gameplay;
 		static const byte SCREEN_WIDTH = 128;
 		static const byte SCREEN_HEIGHT = 64;
 
@@ -85,8 +92,6 @@ class screen{
 			0B01000000, 0B00000000, 0B00000000, 0B00000000, 0B00000000, 0B00000000, 0B00000000, 0B00000010
 		};
 		byte empty_row_size = sizeof(empty_row)/sizeof(byte);
-
-	public:
 
 		void init(){
 			// Initialise the display
@@ -240,6 +245,15 @@ class screen{
 				x, x,
 				page, page,
 				data*color
+			);
+		}
+
+		void drawTitleScreen() {
+			draw(
+				0, staticGraphics::titleScreen::x,
+				0, staticGraphics::titleScreen::y,
+				staticGraphics::titleScreen::graph(),
+				true
 			);
 		}
 
@@ -457,140 +471,6 @@ class screen{
 			);
 			
 		}
-
-		void drawPiece(byte line, byte column, graphics::blocks & piece) {
-			/**
-			 * Draws a piece on the screen.
-			 * 
-			*/
-
-			piece.init(line, column);
-			drawPlayArea(piece.A.line, piece.A.column);
-			drawPlayArea(piece.B.line, piece.B.column);
-			drawPlayArea(piece.C.line, piece.C.column);
-			drawPlayArea(piece.D.line, piece.D.column);
-
-		}
-
-		void drawPieceNupdate(byte line, byte column, graphics::blocks & piece) {
-			/**
-			 * Draws a piece on the screen and updates only the part of
-			 * the screen that is affected.
-			 * 
-			*/
-
-			piece.init(line, column);
-			drawPlayArea(piece.A.line, piece.A.column);
-			updatePlayArea(piece.A.line);
-			drawPlayArea(piece.B.line, piece.B.column);
-			updatePlayArea(piece.B.line);
-			drawPlayArea(piece.C.line, piece.C.column);
-			updatePlayArea(piece.C.line);
-			drawPlayArea(piece.D.line, piece.D.column);
-			updatePlayArea(piece.D.line);
-
-		}
-
-		void deletePiece(byte line, byte column, graphics::blocks & piece) {
-			/**
-			 * Deletes a piece on the screen and updates only the part of
-			 * the screen that is affected.
-			 * 
-			*/
-
-			piece.init(line, column);
-			drawPlayArea(piece.A.line, piece.A.column, false);
-			drawPlayArea(piece.B.line, piece.B.column, false);
-			drawPlayArea(piece.C.line, piece.C.column, false);
-			drawPlayArea(piece.D.line, piece.D.column, false);
-		}
-
-		void deletePieceNupdate(byte line, byte column, graphics::blocks & piece) {
-			/**
-			 * Deletes a piece on the screen and updates only the part of
-			 * the screen that is affected.
-			 * 
-			*/
-
-			piece.init(line, column);
-			drawPlayArea(piece.A.line, piece.A.column, false);
-			updatePlayArea(piece.A.line);
-			drawPlayArea(piece.B.line, piece.B.column, false);
-			updatePlayArea(piece.B.line);
-			drawPlayArea(piece.C.line, piece.C.column, false);
-			updatePlayArea(piece.C.line);
-			drawPlayArea(piece.D.line, piece.D.column, false);
-			updatePlayArea(piece.D.line);
-		}
-
-		bool movePieceDown(graphics::blocks & piece) {
-			/**
-			 * Deletes the piece on the previous position and moves it one position down
-			 * 
-			 * It returns 'true' if the move was successful and 'false' if a collision was detected.
-			 * 
-			*/
-
-			// find the lowest line of the piece
-			byte lowest_point = piece.lowest().line;
-			if (lowest_point == PLAY_LINES-1) {// it has reached the bottom
-				return false;
-			}
-
-			/**
-			 * Detect colision with another piece
-			 * 
-			 * Check only the pieces that are on a unique column
-			 * if they have a piece under them.
-			*/
-			for (byte i=0; i<=3; i++) {
-				graphics::block temp = *piece.blks[i];
-				if (temp.line != lowest_point) {
-					continue;
-				}
-				if (play_screen[temp.line + 1][temp.column]) {
-					return false;
-				}
-			}
-
-			deletePiece(piece.A.line, piece.A.column, piece);
-			drawPiece(piece.A.line + 1, piece.A.column, piece);
-			return true;
-		}
-
-		int movePieceDownNupdate(graphics::blocks & piece) {
-			/**
-			 * Same as above but with built in update.
-			 * 
-			*/
-
-			// find the lowest line of the piece
-			byte lowest_point = piece.lowest().line;
-			if (lowest_point == PLAY_LINES-1) {// it has reached the bottom
-				return false;
-			}
-
-			/**
-			 * Detect colision with another piece
-			 * 
-			 * Check only the pieces that are on a unique column
-			 * if they have a piece under them.
-			*/
-			for (byte i=0; i<=3; i++) {
-				graphics::block temp = *piece.blks[i];
-				if (temp.line != lowest_point) {
-					continue;
-				}
-				if (play_screen[temp.line + 1][temp.column]) {
-					return false;
-				}
-			}
-
-			deletePieceNupdate(piece.A.line, piece.A.column, piece);
-			drawPieceNupdate(piece.A.line + 1, piece.A.column, piece);
-			return true;
-		}
-
 
 };
 

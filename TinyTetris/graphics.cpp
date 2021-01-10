@@ -40,6 +40,7 @@ class graphics {
                 graphics::block C;
                 graphics::block D;
                 graphics::block *blks[4] = {&A, &B, &C, &D};
+                double pivot[2] = {0, 0};
 
                 using graphics::block::init;
                 virtual void init(byte line = 0, byte column = 0);
@@ -68,11 +69,44 @@ class graphics {
                     }
                     return lowest;
                 }
+
+                void turnRight() {
+                    /**
+                     * Rotates the pieces around each pivot
+                     * The rotation is done according to the rotation matrix:
+                     *     |  cosθ sinθ |         (clockwise)
+                     * R = |            |         (θ is in radians)
+                     *     | -sinθ cosθ |
+                     * 
+                     * which is multiplied by the matrix of each block vector:
+                     *     | x |  after each has been moved        | x - xp |   | x" |
+                     * b = |   |  to according to the pivot:  b' = |        | = |    |
+                     *     | y |                                   | y - yp |   | y" |
+                     * 
+                     * So the vector of each rotated block is:
+                     *      | x |   |  cosθ sinθ |   |  x*cosθ + y*sinθ |   | x' |
+                     * br = |   | * |            | = |                  | = |    |
+                     *      | y |   | -sinθ cosθ |   | -x*cosθ + y*sinθ |   | y' |
+                     * 
+                     * And after each has been moved back to the appropriate location:
+                     * 
+                     *      | x' + xp |         |  x*cosθ + y*sinθ + xp |
+                     * br = |         | => br = |                       | =>
+                     *      | y' + yp |         | -x*cosθ + y*sinθ + yp |
+                     * 
+                     *      |  (x-xp)*cosθ + (y-yp)*sinθ + xp |
+                     * br = |                                 |
+                     *      | -(x-xp)*cosθ + (y-yp)*sinθ + yp |
+                    */
+
+
+                }
         };
 
         class I : public graphics::blocks {
             public:
                 using graphics::blocks::init;
+                // using graphics::blocks::pivot;
                 // using graphics::blocks::blks;
                 // using graphics::blocks::printTo;
                 void init(byte line = 0, byte column = 0) {
@@ -80,6 +114,9 @@ class graphics {
                     B.init(line+1, column);
                     C.init(line+2, column);
                     D.init(line+3, column);
+                    // The pivot is in the middle. It is in between two blocks
+                    pivot[0] = 0;
+                    pivot[1] = 0;
                 }
                 void turnRight() {
                     // A is the pivot. it stays unchanged throughout.

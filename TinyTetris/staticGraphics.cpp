@@ -20,12 +20,13 @@
 #include <Arduino.h>
 
 class staticGraphics {
-    public:
+    private:
+        friend class screen;
         class titleScreen {
             public:
-                byte x = 128; 
-                byte y = 8;
-                byte* graph() {
+                static const byte x = 128; 
+                static const byte y = 8;
+                static byte* graph() {
                     static const byte welcomeScreen[128*8] PROGMEM = {// [128][8]
                         0B00000000, 0B00000000, 0B00000000, 0B00000000, 0B00000000, 0B00000000, 0B00000000, 0B00000000,
                         0B00111111, 0B10111111, 0B10100001, 0B01000100, 0B00000000, 0B00000000, 0B00000000, 0B00000000,

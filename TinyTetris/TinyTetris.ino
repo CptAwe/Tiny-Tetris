@@ -1,11 +1,9 @@
 #include "buttons.cpp"
 #include "graphics.cpp"
-#include "staticGraphics.cpp"
-#include "screen.cpp"
+#include "gameplay.cpp"
 // #include "TetrisTheme.cpp" // Too much for an Atmega168 5v@16MHz
 
-screen display;
-staticGraphics::titleScreen title_screen;
+gameplay game;
 
 // pins for buttons
 #define KEY_LEFT_pin    6
@@ -23,55 +21,47 @@ buttons Dpad(button_pins);
 #define KEY_DOWN    4
 #define KEY_ROTATE  2
 
-// misc pins
-// #define PIEZO_PIN   3
-// #define LED_PIN     13
-// #define KEYPAD_PIN  A0
+
+graphics::I I_block;
+graphics::L L_block;
 
 void setup() {
 	Serial.begin(9600);
 
-	// pinMode(PIEZO_PIN, OUTPUT);
-	// pinMode(LED_PIN, OUTPUT);
-	display.init();
-	display.clear();
-
 	randomSeed(analogRead(A1));
 
-	display.draw(
-		0, title_screen.x,
-		0, title_screen.y,
-		title_screen.graph(),
-		true
-	);
+	game.init();
+	game.drawTitleScreen();
 
 	delay(2000);
 
-	display.clear();
+	game.clear();
 
-	display.drawPerimiter();
+	game.drawPerimiter();
 
 }
 
 
 void loop() {
-	graphics::I I_block;
 	I_block.init();
-	graphics::L L_block;
 	L_block.init();
 
 	Serial.println("Everythin ready");
 
-	display.drawPieceNupdate(0, 0, I_block);
-	display.drawPieceNupdate(10, 0, L_block);
+	game.drawPieceNupdate(0, 0, I_block);
+	game.drawPieceNupdate(10, 0, L_block);
 
 	for (byte i=0; i<=3; i++) {
 		Serial.print("--");
 		Serial.println(*I_block.blks[i]);
 	}
+	for (byte i=0; i<=1; i++) {
+		Serial.print("--");
+		Serial.println(I_block.pivot[0]);
+	}
 
-	// Serial.println(display.movePieceDownNupdate(I_block));
-	while (display.movePieceDownNupdate(I_block)) {
+	// Serial.println(game.movePieceDownNupdate(I_block));
+	while (game.movePieceDownNupdate(I_block)) {
 		delay(1000);
 	}
 	
