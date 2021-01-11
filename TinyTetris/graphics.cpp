@@ -1,5 +1,5 @@
 /**
- * Handles the low level talking to the screen
+ * Classes that describe the tetris pieces
  * 
  * 
 */
@@ -14,13 +14,26 @@ class graphics {
     public:
         class block : public Printable {
             // Each pixel of a tetris block
+            // protected:
+            //     block(graphics::block & another) {
+            //         another.column = column;
+            //         another.line = line;
+            //     }
+            
             public:
                 byte line;
                 byte column;
+                // block();
+
+
                 void init(byte _line, byte _column) {
                     line=_line;
                     column=_column;
                 }
+
+                // graphics::block * clone() {
+                //     return new graphics::block(*this);
+                // }
                 
                 virtual size_t printTo(Print& p) const {
                     size_t r = 0;
@@ -40,10 +53,10 @@ class graphics {
                 graphics::block C;
                 graphics::block D;
                 graphics::block *blks[4] = {&A, &B, &C, &D};
-                double pivot[2] = {0, 0};
+                double pivot[2];
 
                 using graphics::block::init;
-                virtual void init(byte line = 0, byte column = 0);
+                // virtual void init(byte line = 0, byte column = 0);
                 
                 // size_t printTo(Print& p) const {
                 //     size_t r = 0;
@@ -56,18 +69,39 @@ class graphics {
                 //     return r;
                 // }
 
+                // graphics::blocks clone() {
+                //     /**
+                //      * Creates returns a copy of the blocks
+                //      * 
+                //     */
+                //    return new graphics::blocks(this);
+                // }
+
                 graphics::block lowest() {
-                    // returns the lowest block, thus the block with the highest line.
+                    /**
+                     * Returns the lowest block, thus the block with the highest line.
+                    */
                     byte max_line = A.line;
                     graphics::block lowest = A;
                     for (byte i=1; i<=3; i++) {
-                        graphics::block temp = *blks[i];
-                        if (temp.line > max_line) {
-                            lowest = temp;
-                            max_line = temp.line;
+                        if (blks[i]->line > max_line) {
+                            lowest = *blks[i];
+                            max_line = blks[i]->line;
                         }
                     }
                     return lowest;
+                }
+
+                void moveDown() {
+                    /**
+                     * Moves the piece one line down,
+                     * including the pivot.
+                     * 
+                    */
+                    for (byte i=0; i<=3; i++) {
+                        blks[i]->line++;
+                    }
+                    pivot[0]++;
                 }
 
                 void turnRight() {
@@ -80,56 +114,79 @@ class graphics {
                      * 
                      * which is multiplied by the matrix of each block vector:
                      *     | x |  after each has been moved        | x - xp |   | x" |
-                     * b = |   |  to according to the pivot:  b' = |        | = |    |
-                     *     | y |                                   | y - yp |   | y" |
+                     * b = |   |  to put the pivot as the  :  b' = |        | = |    |
+                     *     | y |  origin                           | y - yp |   | y" |
                      * 
                      * So the vector of each rotated block is:
-                     *      | x |   |  cosθ sinθ |   |  x*cosθ + y*sinθ |   | x' |
-                     * br = |   | * |            | = |                  | = |    |
-                     *      | y |   | -sinθ cosθ |   | -x*cosθ + y*sinθ |   | y' |
+                     *      | x" |   |  cosθ sinθ |   |  x"*cosθ + y"*sinθ |   | x' |
+                     * br = |    | * |            | = |                    | = |    |
+                     *      | y" |   | -sinθ cosθ |   | -x"*sinθ + y"*cosθ |   | y' |
                      * 
                      * And after each has been moved back to the appropriate location:
                      * 
                      *      | x' + xp |         |  x*cosθ + y*sinθ + xp |
                      * br = |         | => br = |                       | =>
-                     *      | y' + yp |         | -x*cosθ + y*sinθ + yp |
+                     *      | y' + yp |         | -x*sinθ + y*cosθ + yp |
                      * 
                      *      |  (x-xp)*cosθ + (y-yp)*sinθ + xp |
                      * br = |                                 |
-                     *      | -(x-xp)*cosθ + (y-yp)*sinθ + yp |
+                     *      | -(x-xp)*sinθ + (y-yp)*cosθ + yp |
+                     * 
+                     * For 90 degrees:
+                     *      |  y - yp + xp |
+                     * br = |              |
+                     *      | -x + xp + yp |
                     */
-
-
+                    for (byte i=0; i<=3; i++) {
+                        byte previous_line = blks[i]->line;
+                        byte previous_col = blks[i]->column;
+                        blks[i]->line   = (previous_col - pivot[1]) + pivot[0];
+                        blks[i]->column = (-previous_line + pivot[0]) + pivot[1];
+                    }
                 }
+            
+                graphics::blocks virtuallyTurnRight(byte times = 1) {
+                    /**
+                     * It turns the turned piece without actually turning it.
+                     * "times" dictates how many times to apply the turning.
+                     * 
+                    */
+                    graphics::blocks turned;
+                    for (byte i=0; i <= times; i++) {
+                        turned.turnRight();
+                    }
+                    return turned;
+                }
+
         };
 
         class I : public graphics::blocks {
             public:
                 using graphics::blocks::init;
-                // using graphics::blocks::pivot;
-                // using graphics::blocks::blks;
-                // using graphics::blocks::printTo;
+                using graphics::blocks::turnRight;
+                
                 void init(byte line = 0, byte column = 0) {
                     A.init(line  , column);
                     B.init(line+1, column);
                     C.init(line+2, column);
                     D.init(line+3, column);
-                    // The pivot is in the middle. It is in between two blocks
-                    pivot[0] = 0;
-                    pivot[1] = 0;
-                }
-                void turnRight() {
-                    // A is the pivot. it stays unchanged throughout.
-                    B.init(B.column, B.line);
-                    C.init(C.column, C.line);
-                    D.init(D.column, D.line);
+                    /**
+                     *  The pivot is in between two blocks
+                     *  _______   _______   _______   _______
+                     * |  A    | |       | |    D  | |       |
+                     * |  B.   | |D C.B A| |   .C  | |A B.C D|
+                     * |  C    | |       | |    B  | |       |
+                     * |  D    | |       | |    A  | |       |
+                     *  ‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾
+                     * it is always on { A.line + 1.5 , A.column + 1.5}
+                    */
+                    pivot[0] = line + 1.5;
+                    pivot[1] = column + 1.5;
                 }
         };
         
 
         class L  : public graphics::blocks {
-            private:
-                byte turn_flag = 0;
             public:
                 using graphics::blocks::printTo;
                 void init(byte line = 0, byte column = 0) {
@@ -137,40 +194,17 @@ class graphics {
                     B.init(line+1, column);
                     C.init(line+2, column);
                     D.init(line+2, column+1);
-                }
-                bool turnRight() {
-                    // B is the pivot. it stays unchanged throughout.
-                    switch (turn_flag) {
-                        case 0:// top to right
-                            A.init(A.line+1, A.column+1);
-                            C.init(C.line-1, C.column-1);
-                            D.init(D.line,   D.column-2);
-                            turn_flag++;
-                            return true;
-                            break;
-                        case 1:// right to bottom
-                            A.init(A.line+1, A.column+1);
-                            C.init(C.line-1, C.column+1);
-                            D.init(D.line-2, D.column);
-                            turn_flag++;
-                            return true;
-                            break;
-                        case 2:// bottom to left
-                            A.init(A.line-1, A.column-1);
-                            C.init(C.line+1, C.column+1);
-                            D.init(D.line, D.column-2);
-                            turn_flag++;
-                            return true;
-                            break;
-                        case 3:// left to top
-                            A.init(A.line-1, A.column+1);
-                            C.init(C.line+1, C.column-1);
-                            D.init(D.line-2, D.column);
-                            turn_flag = 0;
-                            return true;
-                            break;
-                    }
-                    return false;
+                    /**
+                     *  The pivot is block B
+                     *  _______   _______   _______   _______
+                     * |  A    | |       | |D C    | |    D  |
+                     * |  B    | |C B A  | |  B    | |A B C  |
+                     * |  C D  | |D      | |  A    | |       |
+                     * |       | |       | |       | |       |
+                     *  ‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾
+                    */
+                    pivot[0] = B.line;
+                    pivot[1] = B.column;
                 }
         };
 

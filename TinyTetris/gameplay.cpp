@@ -14,83 +14,27 @@
 class gameplay : public screen {
     private:
 
-    public:
-        void init() {
-            screen::init();
-            screen::clear();
-        }
+        using screen::play_screen;
 
-        using screen::clear;
-        using screen::drawTitleScreen;
-        using screen::drawPerimiter;
-
-        // void clearScreen() {
-        //     screen::clear();
-        // }
-
-        void drawPiece(byte line, byte column, graphics::blocks & piece) {
+        void drawPiece(graphics::blocks & piece) {
             /**
              * Draws a piece on the screen.
              * 
             */
-
-            piece.init(line, column);
-            screen::drawPlayArea(piece.A.line, piece.A.column);
-            screen::drawPlayArea(piece.B.line, piece.B.column);
-            screen::drawPlayArea(piece.C.line, piece.C.column);
-            screen::drawPlayArea(piece.D.line, piece.D.column);
-
+            for (byte i=0; i<=3; i++) {
+                screen::drawPlayArea(piece.blks[i]->line, piece.blks[i]->column);
+            }
         }
 
-        void drawPieceNupdate(byte line, byte column, graphics::blocks & piece) {
-            /**
-             * Draws a piece on the screen and updates only the part of
-             * the screen that is affected.
-             * 
-            */
-
-            piece.init(line, column);
-            screen::drawPlayArea(piece.A.line, piece.A.column);
-            screen::updatePlayArea(piece.A.line);
-            screen::drawPlayArea(piece.B.line, piece.B.column);
-            screen::updatePlayArea(piece.B.line);
-            screen::drawPlayArea(piece.C.line, piece.C.column);
-            screen::updatePlayArea(piece.C.line);
-            screen::drawPlayArea(piece.D.line, piece.D.column);
-            screen::updatePlayArea(piece.D.line);
-
-        }
-
-        void deletePiece(byte line, byte column, graphics::blocks & piece) {
+        void deletePiece(graphics::blocks & piece) {
             /**
              * Deletes a piece on the screen and updates only the part of
              * the screen that is affected.
              * 
             */
-
-            piece.init(line, column);
-            screen::drawPlayArea(piece.A.line, piece.A.column, false);
-            screen::drawPlayArea(piece.B.line, piece.B.column, false);
-            screen::drawPlayArea(piece.C.line, piece.C.column, false);
-            screen::drawPlayArea(piece.D.line, piece.D.column, false);
-        }
-
-        void deletePieceNupdate(byte line, byte column, graphics::blocks & piece) {
-            /**
-             * Deletes a piece on the screen and updates only the part of
-             * the screen that is affected.
-             * 
-            */
-
-            piece.init(line, column);
-            screen::drawPlayArea(piece.A.line, piece.A.column, false);
-            screen::updatePlayArea(piece.A.line);
-            screen::drawPlayArea(piece.B.line, piece.B.column, false);
-            screen::updatePlayArea(piece.B.line);
-            screen::drawPlayArea(piece.C.line, piece.C.column, false);
-            screen::updatePlayArea(piece.C.line);
-            screen::drawPlayArea(piece.D.line, piece.D.column, false);
-            screen::updatePlayArea(piece.D.line);
+            for (byte i=0; i<=3; i++) {
+                screen::drawPlayArea(piece.blks[i]->line, piece.blks[i]->column, false);
+            }
         }
 
         bool movePieceDown(graphics::blocks & piece) {
@@ -123,14 +67,83 @@ class gameplay : public screen {
                 }
             }
 
-            deletePiece(piece.A.line, piece.A.column, piece);
-            drawPiece(piece.A.line + 1, piece.A.column, piece);
+            deletePiece(piece);
+            piece.moveDown();
+            drawPiece(piece);
             return true;
+        }
+
+    public:
+        using screen::clear;
+        using screen::drawTitleScreen;
+        using screen::drawPerimiter;
+
+        void init() {
+            screen::init();
+            screen::clear();
+        }
+
+
+        bool itFits(graphics::blocks & piece) {
+            /**
+             * Checks if the piece actually fits.
+             * It checks if the coordinates of each block are
+             * already occupied in the screen::play_screen
+             * 
+            */
+            for (byte i=0; i<=3; i++) {
+                // Is it on the screen? (too high coordinates)
+                if (piece.blks[i]->line >= PLAY_LINES || piece.blks[i]->column >= PLAY_COLUMNS) {
+                    return false;
+                }
+                // Is it on the screen? (too low coordinates)
+                if (piece.blks[i]->line < 0 || piece.blks[i]->column < 0) {
+                    return false;
+                }
+                // It is on the screen, but does it fit?
+                if (screen::play_screen[piece.blks[i]->line][piece.blks[i]->line]) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        bool drawPieceNupdate(graphics::blocks & piece) {
+            /**
+             * Draws a piece on the screen and updates only the part of
+             * the screen that is affected.
+             * 
+            */
+            if (itFits(piece)){
+                for (byte i=0; i<=3; i++) {
+                    screen::drawPlayArea(piece.blks[i]->line, piece.blks[i]->column);
+                    screen::updatePlayArea(piece.blks[i]->line);
+                }
+                return true;
+            }
+            return false;
+        }
+
+        bool deletePieceNupdate(graphics::blocks & piece) {
+            /**
+             * Deletes a piece on the screen and updates only the part of
+             * the screen that is affected.
+             * 
+            */
+            if (itFits(piece)){
+                for (byte i=0; i<=3; i++) {
+                    screen::drawPlayArea(piece.blks[i]->line, piece.blks[i]->column, false);
+                    screen::updatePlayArea(piece.blks[i]->line);
+                }
+                return true;
+            }
+            return false;
         }
 
         int movePieceDownNupdate(graphics::blocks & piece) {
             /**
-             * Same as above but with built in update.
+             * Moves the piece (if it can) one line down and updates the part of the
+             * screen that is affected.
              * 
             */
 
@@ -156,9 +169,70 @@ class gameplay : public screen {
                 }
             }
 
-            deletePieceNupdate(piece.A.line, piece.A.column, piece);
-            drawPieceNupdate(piece.A.line + 1, piece.A.column, piece);
+            deletePieceNupdate(piece);
+            piece.moveDown();
+            drawPieceNupdate(piece);
             return true;
+        }
+
+        bool turnPieceNupdate(graphics::blocks & piece) {
+            /**
+             * Checks if the piece can be turned 90 degrees to the right. If it can't, it
+             * tries to turn it 90 degrees more. It checks 3 times in total. If all fail
+             * it doesn't turn it.
+             * 
+            */
+            
+            Serial.println("Original: ");
+            for (byte i=0; i<=3; i++) {
+                Serial.println(*piece.blks[i]);
+            }
+
+            graphics::blocks temp = piece;
+            Serial.println("Copied: ");
+            for (byte i=0; i<=3; i++) {
+                Serial.println(*temp.blks[i]);
+            }
+
+            temp.turnRight();
+            Serial.println("Rotate Copy: ");
+            for (byte i=0; i<=3; i++) {
+                Serial.println(*temp.blks[i]);
+            }
+            Serial.println("Original: ");
+            for (byte i=0; i<=3; i++) {
+                Serial.println(*piece.blks[i]);
+            }
+
+            piece = temp;
+            Serial.println("Original After Overwrite: ");
+            for (byte i=0; i<=3; i++) {
+                Serial.println(*piece.blks[i]);
+            }
+
+            return false;
+            // for (byte times=0; times<=2; times++) {
+            //     temp.turnRight();
+            //     if (itFits(temp)) {
+            //         Serial.print("Tries: ");
+            //         Serial.println(times);
+            //         break;
+            //     } else {
+            //         return false;
+            //     }
+            // }
+
+            // Serial.print("Original: ");
+            // Serial.println(*piece.blks[1]);
+            // deletePieceNupdate(piece);
+            
+            // piece = temp;
+            
+            // drawPieceNupdate(piece);
+            // Serial.print("Rotated: ");
+            // Serial.println(*piece.blks[1]);
+            
+            // return true;
         }
 };
 

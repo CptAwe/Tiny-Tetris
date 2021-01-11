@@ -43,27 +43,23 @@ void setup() {
 
 
 void loop() {
-	I_block.init();
-	L_block.init();
+	I_block.init(0, 2);
+	L_block.init(10, 0);
 
 	Serial.println("Everythin ready");
 
-	game.drawPieceNupdate(0, 0, I_block);
-	game.drawPieceNupdate(10, 0, L_block);
+	game.drawPieceNupdate(I_block);
+	Serial.println(game.drawPieceNupdate(L_block));
 
-	for (byte i=0; i<=3; i++) {
-		Serial.print("--");
-		Serial.println(*I_block.blks[i]);
-	}
-	for (byte i=0; i<=1; i++) {
-		Serial.print("--");
-		Serial.println(I_block.pivot[0]);
-	}
+	
+	delay(2000);
 
-	// Serial.println(game.movePieceDownNupdate(I_block));
-	while (game.movePieceDownNupdate(I_block)) {
+	while (game.turnPieceNupdate(I_block)) {
 		delay(1000);
+		// game.turnPieceNupdate(I_block);
+		// delay(1000);
 	}
+	
 	
 
 	// display.inverse();
