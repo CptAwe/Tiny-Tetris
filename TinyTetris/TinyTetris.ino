@@ -23,7 +23,7 @@ buttons Dpad(button_pins);
 
 
 graphics::I I_block;
-graphics::L L_block;
+// graphics::L L_block;
 
 void setup() {
 	Serial.begin(9600);
@@ -44,20 +44,20 @@ void setup() {
 
 void loop() {
 	I_block.init(0, 2);
-	L_block.init(10, 0);
+	// L_block.init(10, 0);
 
 	Serial.println("Everythin ready");
 
 	game.drawPieceNupdate(I_block);
-	Serial.println(game.drawPieceNupdate(L_block));
+	// Serial.println(game.drawPieceNupdate(L_block));
 
 	
 	delay(2000);
 
 	while (game.turnPieceNupdate(I_block)) {
 		delay(1000);
-		// game.turnPieceNupdate(I_block);
-		// delay(1000);
+	// 	// game.turnPieceNupdate(I_block);
+	// 	// delay(1000);
 	}
 	
 	
