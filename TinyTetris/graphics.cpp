@@ -16,7 +16,7 @@
 
 class graphics {
     public:
-        class block /*: public Printable*/ {
+        class block {
             // Each pixel of a tetris block
             protected:
                 block(const graphics::block & another) {
@@ -47,15 +47,6 @@ class graphics {
                     Serial.print(column);
                     Serial.println("}");
                 }
-                // virtual size_t printTo(Print& p) const {
-                //     size_t r = 0;
-                //     r += p.print("{");
-                //     r += p.print(line);
-                //     r += p.print(", ");
-                //     r += p.print(column);
-                //     r += p.print("}");
-                //     return r;
-                // }
         };
 
         class blocks : public graphics::block {
@@ -83,10 +74,6 @@ class graphics {
                 double pivot[2];
 
                 blocks(){}
-
-                // using graphics::block::init;
-                // virtual void init(byte line = 0, byte column = 0);
-                
 
                 graphics::blocks clone() const {
                     /**

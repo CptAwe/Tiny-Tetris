@@ -3,6 +3,12 @@
 This is a collection of notes and overall changelog.
 
 ---
+## **v1.2**:
+### **status**: We are halfway there
+* Graphics work. Downwards collision detection and movement works. Rotation works.
+* Cloning objects works
+* BEWARE when using the Printable class. It has caused multiple bugs. [Further reading on using Printable](https://arduino.stackexchange.com/questions/53732/is-it-possible-to-print-a-custom-object-by-passing-it-to-serial-print). [Further reading on Serial.print bugs](https://forum.arduino.cc/index.php?topic=48577.0)
+
 ## **v1.1.1**:
 ### **status**: Trying to easily show graphics
 * There is no way to read the GDDRAM from the SSD1306. Only SH1106 supports returning the pixels on the screen. I have screens with only SSD1306. I have to use another way. [Further reading](http://www.technoblogy.com/show?2CFT).
