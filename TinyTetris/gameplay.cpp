@@ -46,7 +46,7 @@ class gameplay : public screen {
             */
 
             // find the lowest line of the piece
-            byte lowest_point = piece.lowest().line;
+            byte lowest_point = piece.lowest()->line;
             if (lowest_point == screen::PLAY_LINES-1) {// it has reached the bottom
                 return false;
             }
@@ -58,11 +58,12 @@ class gameplay : public screen {
              * if they have a piece under them.
             */
             for (byte i=0; i<=3; i++) {
-                graphics::block temp = piece.blks[i]->clone();
-                if (temp.line != lowest_point) {
+                graphics::block *temp = piece.blks[i];
+                //  piece.blks[i]->clone();
+                if (temp->line != lowest_point) {
                     continue;
                 }
-                if (screen::play_screen[temp.line + 1][temp.column]) {
+                if (screen::play_screen[temp->line + 1][temp->column]) {
                     return false;
                 }
             }
@@ -148,7 +149,7 @@ class gameplay : public screen {
             */
 
             // find the lowest line of the piece
-            byte lowest_point = piece.lowest().line;
+            byte lowest_point = piece.lowest()->line;
             if (lowest_point == screen::PLAY_LINES-1) {// it has reached the bottom
                 return false;
             }
@@ -182,36 +183,22 @@ class gameplay : public screen {
              * it doesn't turn it.
              * 
             */
-
-            graphics::block A;
-            A.init(6,6);
-            Serial.println(A);
-            graphics::block B;
-            B = A.clone();
-            B.init(0, 0);
-            Serial.println(A);
-            Serial.println(B);
             
-            // Serial.println("Original: ");
-            // for (byte i=0; i<=3; i++) {
-            //     Serial.println(*piece.blks[i]);
-            // }
+            Serial.println("Original: ");
+            piece.print();
 
-            // graphics::blocks *temp = piece.clone();
-            // Serial.println("Copied: ");
-            // for (byte i=0; i<=3; i++) {
-            //     Serial.println(temp->B);
-            // }
+            graphics::blocks temp;
+            temp = piece.clone();
+            Serial.println("Copied: ");
+            temp.print();
 
-            // temp->turnRight();
-            // Serial.println("Rotate Copy: ");
-            // for (byte i=0; i<=3; i++) {
-            //     Serial.println(temp->blks[i]->line);
-            // }
-            // Serial.println("Original: ");
-            // for (byte i=0; i<=3; i++) {
-            //     Serial.println(*piece.blks[i]);
-            // }
+            temp.turnRight();
+
+            Serial.println("Rotate Copy: ");
+            temp.print();
+
+            Serial.println("Original: ");
+            piece.print();
 
             // piece = *temp->clone();
             // Serial.println("Original After Overwrite: ");

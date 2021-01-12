@@ -16,15 +16,16 @@
 
 class graphics {
     public:
-        class block : public Printable {
+        class block /*: public Printable*/ {
             // Each pixel of a tetris block
-            public:
+            protected:
                 block(const graphics::block & another) {
                     column = another.column;
                     line = another.line;
                 }
             
-            // public:
+            public:
+            
                 byte line;
                 byte column;
                 block(){}
@@ -34,37 +35,45 @@ class graphics {
                     column=_column;
                 }
 
-                graphics::block clone() {
+                graphics::block clone() const{
                     return graphics::block(*this);
                 }
                 
-                virtual size_t printTo(Print& p) const {
-                    size_t r = 0;
-                    r += p.print("{");
-                    r += p.print(line);
-                    r += p.print(", ");
-                    r += p.print(column);
-                    r += p.print("}");
-                    return r;
+                void print() {
+                    // Prints to Serial
+                    Serial.print("{");
+                    Serial.print(line);
+                    Serial.print(", ");
+                    Serial.print(column);
+                    Serial.println("}");
                 }
+                // virtual size_t printTo(Print& p) const {
+                //     size_t r = 0;
+                //     r += p.print("{");
+                //     r += p.print(line);
+                //     r += p.print(", ");
+                //     r += p.print(column);
+                //     r += p.print("}");
+                //     return r;
+                // }
         };
 
         class blocks : public graphics::block {
-            // protected:
-                // blocks(graphics::blocks & another) {
-                //     another.A = *A.clone();
-                //     another.B = *B.clone();
-                //     another.C = *C.clone();
-                //     another.D = *D.clone();
+            protected:
+                blocks(const graphics::blocks & another) {
+                    this->A = another.A.clone();
+                    this->B = another.B.clone();
+                    this->C = another.C.clone();
+                    this->D = another.D.clone();
 
-                //     another.blks[0] = &another.A;
-                //     another.blks[1] = &another.B;
-                //     another.blks[2] = &another.C;
-                //     another.blks[3] = &another.D;
+                    this->blks[0] = &this->A;
+                    this->blks[1] = &this->B;
+                    this->blks[2] = &this->C;
+                    this->blks[3] = &this->D;
 
-                //     another.pivot[0] = pivot[0];
-                //     another.pivot[1] = pivot[1];
-                // }
+                    this->pivot[0] = another.pivot[0];
+                    this->pivot[1] = another.pivot[1];
+                }
             public:
                 graphics::block A;
                 graphics::block B;
@@ -79,24 +88,24 @@ class graphics {
                 // virtual void init(byte line = 0, byte column = 0);
                 
 
-                // graphics::blocks * clone() {
-                //     /**
-                //      * Creates returns a copy of the blocks
-                //      * 
-                //     */
-                //    return new graphics::blocks(*this);
-                // }
+                graphics::blocks clone() const {
+                    /**
+                     * Creates returns a copy of the blocks
+                     * 
+                    */
+                   return graphics::blocks(*this);
+                }
 
-                graphics::block lowest() {
+                graphics::block *lowest() {
                     /**
                      * Returns the lowest block, thus the block with the highest line.
                     */
                     byte max_line = A.line;
-                    graphics::block lowest = A.clone();
+                    graphics::block * lowest;
                     for (byte i=1; i<=3; i++) {
-                        if (blks[i]->line > max_line) {
-                            lowest = blks[i]->clone();
-                            max_line = blks[i]->line;
+                        if (this->blks[i]->line > max_line) {
+                            lowest = this->blks[i];
+                            max_line = this->blks[i]->line;
                         }
                     }
                     return lowest;
@@ -148,13 +157,20 @@ class graphics {
                      *      | -x + xp + yp |
                     */
                     for (byte i=0; i<=3; i++) {
-                        byte previous_line = blks[i]->line;
-                        byte previous_col = blks[i]->column;
-                        blks[i]->line   = (previous_col - pivot[1]) + pivot[0];
-                        blks[i]->column = (-previous_line + pivot[0]) + pivot[1];
+                        byte previous_line = this->blks[i]->line;
+                        byte previous_col = this->blks[i]->column;
+                        this->blks[i]->line   = (previous_col - this->pivot[1]) + this->pivot[0];
+                        this->blks[i]->column = (-previous_line + this->pivot[0]) + this->pivot[1];
                     }
                 }
-            
+
+                void print() {
+                    // Prints to Serial
+                    for (byte i=0; i<=3; i++) {
+                        blks[i]->print();
+                    }
+                
+                }
                 // graphics::blocks virtuallyTurnRight(byte times = 1) {
                 //     /**
                 //      * It turns the turned piece without actually turning it.
@@ -198,7 +214,7 @@ class graphics {
 
         class L  : public graphics::blocks {
             public:
-                using graphics::blocks::printTo;
+                // using graphics::blocks::printTo;
                 void init(byte line = 0, byte column = 0) {
                     A.init(line  , column);
                     B.init(line+1, column);
